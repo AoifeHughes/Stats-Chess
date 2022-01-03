@@ -68,7 +68,6 @@ public class ChessPeople : MonoBehaviour
 
     public void InitiateMovePlates()
     {
-        //TODO: Implement!
         switch (this.name)
         {
             case "rook":
@@ -87,7 +86,7 @@ public class ChessPeople : MonoBehaviour
                 KingMove();
                 break;
             case "pawn":
-                PawnMove(xBoard, yBoard);
+                PawnMove();
                 break;
             default:
                 break;
@@ -110,7 +109,7 @@ public class ChessPeople : MonoBehaviour
         possMoves.Add(new List<int>() { x, y, attk });
     }
 
-    private void PawnMove(int x, int y)
+    private void PawnMove()
     {
         Game sc = controller.GetComponent<Game>();
 
@@ -119,22 +118,22 @@ public class ChessPeople : MonoBehaviour
 
         if (num_moves == 0)
         {
-            possY = y + dir * 2;
-            if (sc.PositionOnBoard(x, possY) && sc.GetPosition(x, possY) == null && sc.GetPosition(x, possY-dir) == null)
+            possY = yBoard + dir * 2;
+            if (sc.PositionOnBoard(xBoard, possY) && sc.GetPosition(xBoard, possY) == null && sc.GetPosition(xBoard, possY-dir) == null)
             {
-                AddPossMove(x, possY);
+                AddPossMove(xBoard, possY);
             }
         }
-        possY = y + dir;
+        possY = yBoard + dir;
 
-        if (sc.PositionOnBoard(x, possY) && sc.GetPosition(x, possY) == null)
+        if (sc.PositionOnBoard(xBoard, possY) && sc.GetPosition(xBoard, possY) == null)
         {
-            AddPossMove(x, possY);
+            AddPossMove(xBoard, possY);
         }
 
         for (int i = -1; i < 2; i += 2)
         {
-            int possX = x + i;
+            int possX = xBoard + i;
             if (sc.PositionOnBoard(possX, possY) && sc.GetPosition(possX, possY) != null && sc.GetPosition(possX, possY).GetComponent<ChessPeople>().color != color)
             {
                     AddPossMove(possX, possY, 1);       
@@ -150,17 +149,28 @@ public class ChessPeople : MonoBehaviour
     private void KingMove()
     {
         OmniDir(true);
+        // TODO: Castling
     }
 
-
-    private void BishopMove()
-    {
-        throw new NotImplementedException();
-    }
 
     private void RookMove()
     {
-        throw new NotImplementedException();
+        for (int sign = -1; sign < 2; sign += 2)
+        {
+            LineMovePlate(1 * sign, 0);
+            LineMovePlate(0, 1 * sign);
+        }
+    }
+
+    private void BishopMove()
+    {
+        for (int x = -1; x < 2; x+=2)
+        {
+            for (int y = -1; y < 2; y+=2)
+            {
+                LineMovePlate(x,y);
+            }
+        }
     }
 
     private void QueenMove()
@@ -174,15 +184,12 @@ public class ChessPeople : MonoBehaviour
         Game sc = controller.GetComponent<Game>();
         int[] Xs = new int[] {1,2,1,2};
         int[] Ys = new int[] {2,1,-2,-1};
-
-
         for (int sign = -1; sign < 2; sign+=2)
         {
             for (int i = 0; i < Xs.Length; i++)
             {
                 int possX = xBoard + Xs[i]*sign;
                 int possY = yBoard + Ys[i];
-                Debug.Log(String.Format("X: {0}, Y: {1}", possX - xBoard, possY - yBoard));
 
                 if (sc.PositionOnBoard(possX, possY))
                 {
