@@ -43,7 +43,7 @@ public class MovePlate : MonoBehaviour
         reference.GetComponent<ChessPeople>().IncNumMoves();
         reference.GetComponent<ChessPeople>().ResetMoveList();
         controller.GetComponent<Game>().SetPosition(reference);
-
+        controller.GetComponent<Game>().NextTurn();
         reference.GetComponent<ChessPeople>().DestroyMovePlates();
     }
 

@@ -51,9 +51,12 @@ public class ChessPeople : MonoBehaviour
 
     public void OnMouseUp()
     {
-        ResetMoveList();
-        DestroyMovePlates();
-        InitiateMovePlates();
+        if (controller.GetComponent<Game>().GetCurrentPlayer() == color && !controller.GetComponent<Game>().IsGameOver())
+        {
+            ResetMoveList();
+            DestroyMovePlates();
+            InitiateMovePlates();
+        }
     }
 
     public void DestroyMovePlates()
@@ -66,8 +69,9 @@ public class ChessPeople : MonoBehaviour
         }
     }
 
-    public void InitiateMovePlates()
+    private void GeneratePossMoves()
     {
+        ResetMoveList();
         switch (this.name)
         {
             case "rook":
@@ -91,7 +95,19 @@ public class ChessPeople : MonoBehaviour
             default:
                 break;
         }
+    }
 
+    public List<List<int>> GetPossMoves()
+    {
+        GeneratePossMoves();
+        return possMoves;
+    }
+
+
+    public void InitiateMovePlates()
+    {
+
+        GeneratePossMoves();
 
         for (int i = 0; i < possMoves.Count; i++)
         {
@@ -104,8 +120,15 @@ public class ChessPeople : MonoBehaviour
 
     }
 
-    private void AddPossMove(int x, int y, int attk= 0)
+    private void AddPossMove(int x, int y, int attk=0)
     {
+
+        // Put in additional checks here!
+        // 1. Check movements of all opp color pieces
+        //    if any can take king, then this move is not acceptable
+        // Game sc = controller.GetComponent<Game>();
+
+
         possMoves.Add(new List<int>() { x, y, attk });
     }
 
