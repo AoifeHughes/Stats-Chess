@@ -41,7 +41,24 @@ public class MovePlate : MonoBehaviour
         reference.GetComponent<ChessPeople>().SetYBoard(matY);
         reference.GetComponent<ChessPeople>().SetCoords();
 
+        controller.GetComponent<Game>().SetPosition(reference);
 
+        reference.GetComponent<ChessPeople>().DestroyMovePlates();
     }
 
+    public void SetCoords(int x, int y)
+    {
+        matX = x;
+        matY = y;
+    }
+
+    public void SetReference(GameObject obj)
+    {
+        reference = obj;
+    }
+
+    public GameObject GetReference()
+    {
+        return reference;
+    }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -45,4 +46,77 @@ public class ChessPeople : MonoBehaviour
     public void SetXBoard(int x) { xBoard=x; }
     public void SetYBoard(int y) { yBoard=y; }
     public void SetPlayer(string p) { color = p; }
+
+    public void OnMouseUp()
+    {
+        Debug.Log(this.name);
+
+        DestroyMovePlates();
+        InitiateMovePlates();
+
+    }
+
+    public void DestroyMovePlates()
+    {
+        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+        for (int i = 0; i < movePlates.Length; i++)
+        {
+            Destroy(movePlates[i]);
+        }
+    }
+
+    public void InitiateMovePlates()
+    {
+        //TODO: Implement!
+        switch (this.name)
+        {
+            case "queen":
+                Debug.Log("Making a moveplate!");
+                LineMovePlate(1, 0);
+                LineMovePlate(0, 1);
+                LineMovePlate(1, 1);
+                LineMovePlate(-1, 0);
+                LineMovePlate(0, -1);
+                LineMovePlate(-1, -1);
+                LineMovePlate(-1, 1);
+                LineMovePlate(1, -1);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void LineMovePlate(int xInc, int yInc)
+    {
+        Game sc = controller.GetComponent<Game>();
+        int x = xBoard + xInc;
+        int y = yBoard + yInc;
+
+        while (sc.PositionOnBoard(x,y) && sc.GetPosition(x, y) == null)
+        {
+            MovePlateSpawn(x, y);
+            x += xInc;
+            y += yInc;
+        }
+
+        if (sc.PositionOnBoard(x,y) && sc.GetPosition(x,y).GetComponent<ChessPeople>().color != color)
+        {
+            MovePlateSpawn(x, y, true);
+        }
+    }
+
+    private void MovePlateSpawn(int matX, int matY, bool att=false)
+    {
+        int x0 = matX;
+        int y0 = matY;
+        float x = x0 * 0.66f - 2.3f;
+        float y = y0 *0.66f - 2.3f;
+
+        GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
+        MovePlate mpScript = mp.GetComponent<MovePlate>();
+        mpScript.attack = att;
+        mpScript.SetReference(gameObject);
+        mpScript.SetCoords(x0, y0);
+    }
+
 }
