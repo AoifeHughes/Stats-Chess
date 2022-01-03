@@ -51,12 +51,14 @@ public class ChessPeople : MonoBehaviour
 
     public void OnMouseUp()
     {
+        ResetMoveList();
         DestroyMovePlates();
         InitiateMovePlates();
     }
 
     public void DestroyMovePlates()
     {
+
         GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
         for (int i = 0; i < movePlates.Length; i++)
         {
@@ -90,6 +92,17 @@ public class ChessPeople : MonoBehaviour
             default:
                 break;
         }
+
+
+        for (int i = 0; i < possMoves.Count; i++)
+        {
+            int mx = possMoves[i][0];
+            int my = possMoves[i][1];
+            bool attk = (possMoves[i][2] != 0) ? true : false;
+
+            MovePlateSpawn(mx, my, attk);
+        }
+
     }
 
     private void AddPossMove(int x, int y, int attk= 0)
@@ -128,15 +141,6 @@ public class ChessPeople : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < possMoves.Count; i++)
-        {
-            int mx = possMoves[i][0];
-            int my = possMoves[i][1];
-            bool attk = (possMoves[i][2]!=0) ? true : false;
-
-            MovePlateSpawn(mx, my, attk);
-        }
-
         // TODO: Add en passant *spelling
         // TODO: Add transform at end of board
 
@@ -145,13 +149,9 @@ public class ChessPeople : MonoBehaviour
 
     private void KingMove()
     {
-        throw new NotImplementedException();
+        OmniDir(true);
     }
 
-    private void KnightMove()
-    {
-        throw new NotImplementedException();
-    }
 
     private void BishopMove()
     {
@@ -165,33 +165,74 @@ public class ChessPeople : MonoBehaviour
 
     private void QueenMove()
     {
-        LineMovePlate(1, 0);
-        LineMovePlate(0, 1);
-        LineMovePlate(1, 1);
-        LineMovePlate(-1, 0);
-        LineMovePlate(0, -1);
-        LineMovePlate(-1, -1);
-        LineMovePlate(-1, 1);
-        LineMovePlate(1, -1);
+        OmniDir();
     }
 
-    private void LineMovePlate(int xInc, int yInc)
+
+    private void KnightMove()
+    {
+        Game sc = controller.GetComponent<Game>();
+        int[] Xs = new int[] {1,2,1,2};
+        int[] Ys = new int[] {2,1,-2,-1};
+
+
+        for (int sign = -1; sign < 2; sign+=2)
+        {
+            for (int i = 0; i < Xs.Length; i++)
+            {
+                int possX = xBoard + Xs[i]*sign;
+                int possY = yBoard + Ys[i];
+                Debug.Log(String.Format("X: {0}, Y: {1}", possX - xBoard, possY - yBoard));
+
+                if (sc.PositionOnBoard(possX, possY))
+                {
+                    if (sc.GetPosition(possX, possY) == null)
+                    {
+                        AddPossMove(possX, possY);
+                    }
+                    else if (sc.GetPosition(possX, possY).GetComponent<ChessPeople>().color != color)
+                    {
+                        AddPossMove(possX, possY, 1);
+                    }
+                }
+            }
+        }
+        
+    }
+
+    private void OmniDir(bool king = false)
+    {
+        for (int i = -1; i < 2; i++)
+        {
+            for (int j = -1; j < 2; j++)
+            {
+                LineMovePlate(i, j, king);
+            }
+        }
+    }
+
+    private void LineMovePlate(int xInc, int yInc, bool king = false)
     {
         Game sc = controller.GetComponent<Game>();
         int x = xBoard + xInc;
         int y = yBoard + yInc;
-
         while (sc.PositionOnBoard(x,y) && sc.GetPosition(x, y) == null)
         {
-            MovePlateSpawn(x, y);
+            AddPossMove(x, y);
             x += xInc;
             y += yInc;
+            if (king)
+            {
+                x = xBoard + xInc;
+                y = yBoard + yInc;
+                break;
+            }
+        }
+        if (sc.PositionOnBoard(x,y) && sc.GetPosition(x, y) != null && sc.GetPosition(x,y).GetComponent<ChessPeople>().color != color)
+        {
+            AddPossMove(x, y, 1);
         }
 
-        if (sc.PositionOnBoard(x,y) && sc.GetPosition(x,y).GetComponent<ChessPeople>().color != color)
-        {
-            MovePlateSpawn(x, y, true);
-        }
     }
 
     private void MovePlateSpawn(int matX, int matY, bool attk=false)
