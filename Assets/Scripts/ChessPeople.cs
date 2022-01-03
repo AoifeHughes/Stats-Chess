@@ -9,13 +9,13 @@ public class ChessPeople : MonoBehaviour
     // References 
     public GameObject controller; 
     public GameObject movePlate; 
-
     // Positions
     private int xBoard = -1;
-    private int yBoard = -1; 
+    private int yBoard = -1;
+    private List<List<int>> possMoves = new List<List<int>>();
     // track color
     private string color;
-
+    private int num_moves = 0;
     // sprites
     private string board = "chess";
 
@@ -42,18 +42,17 @@ public class ChessPeople : MonoBehaviour
     public int GetXBoard() { return xBoard; }
     public int GetYBoard() { return yBoard; }
     public string GetPlayer() { return color; }
+    public int GetNumMoves() { return num_moves; }
 
     public void SetXBoard(int x) { xBoard=x; }
     public void SetYBoard(int y) { yBoard=y; }
     public void SetPlayer(string p) { color = p; }
+    public void IncNumMoves() { num_moves += 1; }
 
     public void OnMouseUp()
     {
-        Debug.Log(this.name);
-
         DestroyMovePlates();
         InitiateMovePlates();
-
     }
 
     public void DestroyMovePlates()
@@ -70,20 +69,110 @@ public class ChessPeople : MonoBehaviour
         //TODO: Implement!
         switch (this.name)
         {
+            case "rook":
+                RookMove();
+                break;
+            case "bishop":
+                BishopMove();
+                break;
+            case "knight":
+                KnightMove();
+                break;
             case "queen":
-                Debug.Log("Making a moveplate!");
-                LineMovePlate(1, 0);
-                LineMovePlate(0, 1);
-                LineMovePlate(1, 1);
-                LineMovePlate(-1, 0);
-                LineMovePlate(0, -1);
-                LineMovePlate(-1, -1);
-                LineMovePlate(-1, 1);
-                LineMovePlate(1, -1);
+                QueenMove();
+                break;
+            case "king":
+                KingMove();
+                break;
+            case "pawn":
+                PawnMove(xBoard, yBoard);
                 break;
             default:
                 break;
         }
+    }
+
+    private void AddPossMove(int x, int y, int attk= 0)
+    {
+        possMoves.Add(new List<int>() { x, y, attk });
+    }
+
+    private void PawnMove(int x, int y)
+    {
+        Game sc = controller.GetComponent<Game>();
+
+        int dir = (color == "white") ? 1 : -1;
+        int possY;
+
+        if (num_moves == 0)
+        {
+            possY = y + dir * 2;
+            if (sc.PositionOnBoard(x, possY) && sc.GetPosition(x, possY) == null && sc.GetPosition(x, possY-dir) == null)
+            {
+                AddPossMove(x, possY);
+            }
+        }
+        possY = y + dir;
+
+        if (sc.PositionOnBoard(x, possY) && sc.GetPosition(x, possY) == null)
+        {
+            AddPossMove(x, possY);
+        }
+
+        for (int i = -1; i < 2; i += 2)
+        {
+            int possX = x + i;
+            if (sc.PositionOnBoard(possX, possY) && sc.GetPosition(possX, possY) != null && sc.GetPosition(possX, possY).GetComponent<ChessPeople>().color != color)
+            {
+                    AddPossMove(possX, possY, 1);       
+            }
+        }
+
+        for (int i = 0; i < possMoves.Count; i++)
+        {
+            int mx = possMoves[i][0];
+            int my = possMoves[i][1];
+            bool attk = (possMoves[i][2]!=0) ? true : false;
+
+            MovePlateSpawn(mx, my, attk);
+        }
+
+        // TODO: Add en passant *spelling
+        // TODO: Add transform at end of board
+
+
+    }
+
+    private void KingMove()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void KnightMove()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void BishopMove()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void RookMove()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void QueenMove()
+    {
+        LineMovePlate(1, 0);
+        LineMovePlate(0, 1);
+        LineMovePlate(1, 1);
+        LineMovePlate(-1, 0);
+        LineMovePlate(0, -1);
+        LineMovePlate(-1, -1);
+        LineMovePlate(-1, 1);
+        LineMovePlate(1, -1);
     }
 
     private void LineMovePlate(int xInc, int yInc)
@@ -105,7 +194,7 @@ public class ChessPeople : MonoBehaviour
         }
     }
 
-    private void MovePlateSpawn(int matX, int matY, bool att=false)
+    private void MovePlateSpawn(int matX, int matY, bool attk=false)
     {
         int x0 = matX;
         int y0 = matY;
@@ -114,9 +203,11 @@ public class ChessPeople : MonoBehaviour
 
         GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
         MovePlate mpScript = mp.GetComponent<MovePlate>();
-        mpScript.attack = att;
+        mpScript.attack = attk;
         mpScript.SetReference(gameObject);
         mpScript.SetCoords(x0, y0);
     }
+
+    public void ResetMoveList() { possMoves = new List<List<int>>(); }
 
 }
