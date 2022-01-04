@@ -8,6 +8,9 @@ public class Game : MonoBehaviour
 {
 
     public GameObject chesspiece;
+    public GameObject moveplate;
+    public GameObject controller;
+
     private GameObject[,] positions = new GameObject[8, 8];
     private GameObject[] playerBlack = new GameObject[16];
     private GameObject[] playerWhite = new GameObject[16];
@@ -21,6 +24,14 @@ public class Game : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        controller = GameObject.FindGameObjectWithTag("GameController");
+        print(controller);
+        chesspiece = Resources.Load("Prefabs/Chesspiece") as GameObject;
+        moveplate = Resources.Load("Prefabs/MovePlate") as GameObject;
+        chesspiece.AddComponent<ChessPeople>();
+        moveplate.AddComponent<MovePlate>();
+
+
 
         for (int i = 0; i < playerWhite.Length; i++)
         {
@@ -41,6 +52,8 @@ public class Game : MonoBehaviour
     {
         GameObject obj = Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity);
         ChessPeople cp = obj.GetComponent<ChessPeople>();
+        cp.SetMoveplate(moveplate);
+        cp.SetController(controller);
         cp.name = name;
         cp.SetPlayer(player);
         cp.SetXBoard(x);

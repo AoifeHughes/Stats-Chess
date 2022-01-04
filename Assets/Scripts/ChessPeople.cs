@@ -19,9 +19,12 @@ public class ChessPeople : MonoBehaviour
     // sprites
     private string board = "chess";
 
+    public void SetMoveplate(GameObject obj) { movePlate = obj; }
+    public void SetController(GameObject obj) { controller = obj; }
+
+
     public void Activate()
     {
-        controller = GameObject.FindGameObjectWithTag("GameController");
         SetCoords();
         string loc = string.Format("Sprites/{0}/{1}_{2}", board, this.color, this.name);
         this.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(loc);
@@ -51,6 +54,7 @@ public class ChessPeople : MonoBehaviour
 
     public void OnMouseUp()
     {
+        controller = GameObject.FindGameObjectWithTag("GameController");
         if (controller.GetComponent<Game>().GetCurrentPlayer() == color && !controller.GetComponent<Game>().IsGameOver())
         {
             ResetMoveList();
@@ -277,6 +281,7 @@ public class ChessPeople : MonoBehaviour
         mpScript.attack = attk;
         mpScript.SetReference(gameObject);
         mpScript.SetCoords(x0, y0);
+        mpScript.Start();
     }
 
     public void ResetMoveList() { possMoves = new List<List<int>>(); }

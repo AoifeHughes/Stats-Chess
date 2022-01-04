@@ -9,6 +9,8 @@ Assets/AssetStoreTools*
 *.meta
 *.gif
 
+*.log
+
 # Visual Studio cache directory
 .vs/
 
@@ -16,7 +18,6 @@ Assets/AssetStoreTools*
 ExportedObj/
 .consulo/
 *.csproj
-*.unityproj
 *.sln
 *.suo
 *.tmp
