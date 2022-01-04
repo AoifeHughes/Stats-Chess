@@ -4,6 +4,7 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 
+Libraru/Artifact/*
 .DS_Store
 
 *.log
@@ -15,6 +16,7 @@ Assets/AssetStoreTools*
 ExportedObj/
 .consulo/
 *.csproj
+*.sln
 *.suo
 *.tmp
 *.user
@@ -26,6 +28,9 @@ ExportedObj/
 *.opendb
 *.VC.db
 
+# Unity3D generated meta files
+*.pidb.meta
+*.pdb.meta
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
