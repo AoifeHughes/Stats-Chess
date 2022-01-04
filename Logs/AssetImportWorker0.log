@@ -2825,3 +2825,11 @@ Received Import Request.
 Start importing Assets/Resources/Prefabs using Guid(70f6292d6d382402395e0c197584fd8b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6fefcdf2ba138b0f1ece11aad8183537') in 0.004822 seconds 
   Import took 0.007238 seconds .
 
+========================================================================
+Received Import Request.
+  Time since last request: 513.090628 seconds.
+  path: Assets/Scenes/Game.unity
+  artifactKey: Guid(2cda990e2423bbf4892e6590ba056729) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/Game.unity using Guid(2cda990e2423bbf4892e6590ba056729) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'aca950ae2cdf69d2e98177a170563cce') in 0.040832 seconds 
+  Import took 0.057510 seconds .
+

@@ -643,6 +643,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chesspiece: {fileID: 0}
+  moveplate: {fileID: 0}
+  controller: {fileID: 0}
 --- !u!4 &1782984006
 Transform:
   m_ObjectHideFlags: 0

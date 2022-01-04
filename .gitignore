@@ -6,7 +6,6 @@
 Assets/AssetStoreTools*
 
 .DS_Store
-*.meta
 *.gif
 
 *.log
