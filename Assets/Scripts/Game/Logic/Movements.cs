@@ -4,22 +4,21 @@ using UnityEngine;
 
 public class Movements 
 {
-    //TODO: For the sake of the AI remove dependancy on gameobjects capturing state of the board
-    //      add board as a parameter to generate movements!
-    //      list<list<string, int int>> to represent pices / locations 
+
     [SerializeField] public GameObject controller;
 
     private List<List<int>> possMoves = new List<List<int>>();
     private int xBoard, yBoard, num_moves;
     private string color;
+    private BoardState state;
 
-
-    public List<List<int>> GenerateMovements(string name, int xBoard, int yBoard, string color, int num_moves = 0)
+    public List<List<int>> GenerateMovements(string name, int xBoard, int yBoard, string color, BoardState state, int num_moves = 0)
     {
         this.xBoard = xBoard;
         this.yBoard = yBoard;
         this.num_moves = num_moves;
         this.color = color;
+        this.state = state;
 
         switch (name)
         {
@@ -55,7 +54,7 @@ public class Movements
         // Put in additional checks here!
         // 1. Check movements of all opp color pieces
         //    if any can take king, then this move is not acceptable
-        // Game sc = controller.GetComponent<Game>();
+        // Game state = controller.GetComponent<Game>();
 
 
         possMoves.Add(new List<int>() { x, y, attk });
@@ -63,23 +62,20 @@ public class Movements
 
     private void PawnMove()
     {
-        controller = GameObject.FindGameObjectWithTag("GameController");
-        Game sc = controller.GetComponent<Game>();
-
         int dir = (color == "white") ? 1 : -1;
         int possY;
 
         if (num_moves == 0)
         {
             possY = yBoard + dir * 2;
-            if (sc.PositionOnBoard(xBoard, possY) && sc.GetPosition(xBoard, possY) == null && sc.GetPosition(xBoard, possY - dir) == null)
+            if (state.PositionOnBoard(xBoard, possY) && state.GetPosition(xBoard, possY) == null && state.GetPosition(xBoard, possY - dir) == null)
             {
                 AddPossMove(xBoard, possY);
             }
         }
         possY = yBoard + dir;
 
-        if (sc.PositionOnBoard(xBoard, possY) && sc.GetPosition(xBoard, possY) == null)
+        if (state.PositionOnBoard(xBoard, possY) && state.GetPosition(xBoard, possY) == null)
         {
             AddPossMove(xBoard, possY);
         }
@@ -87,7 +83,7 @@ public class Movements
         for (int i = -1; i < 2; i += 2)
         {
             int possX = xBoard + i;
-            if (sc.PositionOnBoard(possX, possY) && sc.GetPosition(possX, possY) != null && sc.GetPosition(possX, possY).GetComponent<Piece>().GetPlayer() != color)
+            if (state.PositionOnBoard(possX, possY) && state.GetPosition(possX, possY) != null && state.GetColor(possX, possY) != color)
             {
                 AddPossMove(possX, possY, 1);
             }
@@ -133,9 +129,7 @@ public class Movements
 
     private void KnightMove()
     {
-        controller = GameObject.FindGameObjectWithTag("GameController");
 
-        Game sc = controller.GetComponent<Game>();
         int[] Xs = new int[] { 1, 2, 1, 2 };
         int[] Ys = new int[] { 2, 1, -2, -1 };
         for (int sign = -1; sign < 2; sign += 2)
@@ -145,13 +139,13 @@ public class Movements
                 int possX = xBoard + Xs[i] * sign;
                 int possY = yBoard + Ys[i];
 
-                if (sc.PositionOnBoard(possX, possY))
+                if (state.PositionOnBoard(possX, possY))
                 {
-                    if (sc.GetPosition(possX, possY) == null)
+                    if (state.GetPosition(possX, possY) == null)
                     {
                         AddPossMove(possX, possY);
                     }
-                    else if (sc.GetPosition(possX, possY).GetComponent<Piece>().GetPlayer() != color)
+                    else if (state.GetColor(possX, possY) != color)
                     {
                         AddPossMove(possX, possY, 1);
                     }
@@ -174,11 +168,10 @@ public class Movements
 
     private void LineMovePlate(int xInc, int yInc, bool king = false)
     {
-        controller = GameObject.FindGameObjectWithTag("GameController");
-        Game sc = controller.GetComponent<Game>();
+        // This is bork!
         int x = xBoard + xInc;
         int y = yBoard + yInc;
-        while (sc.PositionOnBoard(x, y) && sc.GetPosition(x, y) == null)
+        while (state.PositionOnBoard(x, y) && state.GetPosition(x, y) == null)
         {
             AddPossMove(x, y);
             x += xInc;
@@ -190,13 +183,11 @@ public class Movements
                 break;
             }
         }
-        if (sc.PositionOnBoard(x, y) && sc.GetPosition(x, y) != null && sc.GetPosition(x, y).GetComponent<Piece>().GetPlayer() != color)
+        if (state.PositionOnBoard(x, y) && state.GetPosition(x, y) != null && state.GetColor(x, y) != color)
         {
             AddPossMove(x, y, 1);
         }
 
     }
-
-
 
 }

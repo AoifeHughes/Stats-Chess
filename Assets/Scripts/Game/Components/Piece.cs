@@ -43,10 +43,14 @@ public class Piece : MonoBehaviour
     public int GetYBoard() { return yBoard; }
     public string GetPlayer() { return color; }
     public int GetNumMoves() { return num_moves; }
-    
+    public string GetName() { return this.name; }
+    public void SetXYBoard(int x, int y)
+    {
+        xBoard = x;
+        yBoard = y;
+        SetCoords();
 
-    public void SetXBoard(int x) { xBoard=x; }
-    public void SetYBoard(int y) { yBoard=y; }
+    }
     public void SetPlayer(string p) { color = p; }
     public void IncNumMoves() { num_moves += 1; }
 
@@ -55,6 +59,7 @@ public class Piece : MonoBehaviour
         controller = GameObject.FindGameObjectWithTag("GameController");
         if (controller.GetComponent<Game>().GetCurrentPlayer() == color && !controller.GetComponent<Game>().IsGameOver())
         {
+
             DestroyMovePlates();
             InitiateMovePlates();
         }
@@ -63,8 +68,9 @@ public class Piece : MonoBehaviour
 
     public void InitiateMovePlates()
     {
+        BoardState state = controller.GetComponent<Game>().GetCurrentState();
         Movements moves = new Movements();
-        List<List<int>> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, num_moves);
+        List<List<int>> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, state, num_moves);
 
         for (int i = 0; i < possMoves.Count; i++)
         {

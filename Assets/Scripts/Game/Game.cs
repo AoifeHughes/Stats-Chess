@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,19 +8,32 @@ using UnityEngine.UI;
 public class Game : MonoBehaviour
 {
 
-    [SerializeField] public GameObject chesspiece;
+    public GameObject chesspiece;
 
     private GameObject[,] positions = new GameObject[8, 8];
-    private GameObject[] playerBlack = new GameObject[16];
-    private GameObject[] playerWhite = new GameObject[16];
-    private List<List<GameObject>> history = new List<List<GameObject>>();
-    public static string[] pieceOrders = { "rook", "knight", "bishop", "queen", "king", "bishop", "knight","rook",
-                                           "pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn"};
+    private BoardState currentState;
+    private List<BoardState> history = new List<BoardState>();
 
-    private string currentPlayer = "white";
+    private bool gameOver = false;
 
-    private bool gameOver = false; 
+    private void BoardStateToPieces(BoardState state)
+    {
+        for (int x = 0; x < state.GetLength(0); x++)
+        {
+            for (int y = 0; y < state.GetLength(1); y++)
+            {
+                if (state.GetPosition(x, y) == null)
+                {
+                    continue;
+                }
+                string n = state.GetPosition(x, y);
+                string color = state.GetColor(x, y);
+                positions[x, y] = Create(n, color, x, y);
+            }
+        }
+    }
 
+    public BoardState GetCurrentState() { return this.currentState; }
 
     private void SetBoard(GameObject[] white, GameObject[] black)
     {
@@ -34,19 +48,9 @@ public class Game : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        currentState = new BoardState();
 
-        for (int i = 0; i < playerWhite.Length; i++)
-        {
-            playerWhite[i] = Create(pieceOrders[i], "white", i-i/8*8 ,i/8);
-            playerBlack[i] = Create(pieceOrders[i], "black", i - i / 8 * 8, 7-i / 8);
-        }
-
-        for (int i = 0; i < playerWhite.Length; i++)
-        {
-            SetPosition(playerWhite[i]);
-            SetPosition(playerBlack[i]);
-        }
-
+        BoardStateToPieces(currentState);
     }
 
 
@@ -56,57 +60,51 @@ public class Game : MonoBehaviour
         Piece cp = obj.GetComponent<Piece>();
         cp.name = name;
         cp.SetPlayer(player);
-        cp.SetXBoard(x);
-        cp.SetYBoard(y);
+        cp.SetXYBoard(x,y);  
         cp.Activate();
         return obj;
-
+        
     }
 
-    public void SetPosition(GameObject obj)
-    {
-        Piece cp = obj.GetComponent<Piece>();
-        positions[cp.GetXBoard(), cp.GetYBoard()] = obj;
-    }
-
-    public void SetPositionEmpty(int x, int y)
-    {
-        positions[x, y] = null; 
-    }
-
-    public GameObject GetPosition(int x, int y)
+    public GameObject GetCPRef(int x, int y)
     {
         return positions[x, y];
     }
 
-    //public GameObject[] GetPlayer(bool getWhite)
-    //{
-    //    return (getWhite) ? playerWhite : playerBlack;
-    //}
-
-    public bool PositionOnBoard(int x, int y)
+    public void HandleMovement(GameObject obj, int x, int y, bool attack)
     {
-        if (x < 0 || y < 0 || x >= positions.GetLength(0) || y >= positions.GetLength(1))
+        if (attack)
         {
-            return false;
+            Destroy(positions[x, y]);
         }
-        return true;
+
+        Piece piece = obj.GetComponent<Piece>();
+        int prevX = piece.GetXBoard();
+        int prevY = piece.GetYBoard();
+
+        //Do board state
+        currentState.SetPiece(piece.GetName(), piece.GetPlayer(), x, y, prevX, prevY);
+
+        // Do visuals
+
+        positions[prevX, prevY] = null;
+        piece.SetXYBoard(x, y);
+        piece.IncNumMoves();
+        positions[x, y] = obj;
+        NextTurn();
+        piece.DestroyMovePlates();
+
+
     }
 
-    public string GetCurrentPlayer() { return currentPlayer; }
+
+    public string GetCurrentPlayer() { return currentState.GetCurrentPlayer(); }
 
     public bool IsGameOver() { return gameOver; }
 
     public void NextTurn()
     {
-        if (currentPlayer == "white")
-        {
-            currentPlayer = "black";
-        }
-        else
-        {
-            currentPlayer = "white";
-        }
+        currentState.SwapPlayer();
     }
 
 
@@ -131,5 +129,10 @@ public class Game : MonoBehaviour
         GameObject.FindGameObjectWithTag("WinnerText").GetComponent<Text>().text = playerWinner + " Wins!";
         GameObject.FindGameObjectWithTag("RestartText").GetComponent<Text>().enabled = true;
 
+    }
+
+    internal bool PositionOnBoard(int possX, int possY)
+    {
+        throw new NotImplementedException();
     }
 }
