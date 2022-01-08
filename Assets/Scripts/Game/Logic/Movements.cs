@@ -7,13 +7,13 @@ public class Movements
 
     [SerializeField] public GameObject controller;
 
-    private List<List<int>> possMoves = new List<List<int>>();
+    private List<(int x, int y, bool attack)> possMoves = new List<(int, int, bool)>();
     private int xBoard, yBoard, num_moves;
     private string color;
     private string name;
     private BoardState state;
 
-    public List<List<int>> GenerateMovements(string name, int xBoard, int yBoard, string color, BoardState state, int num_moves = 0, bool filter_suicide=false)
+    public List<(int x, int y, bool attack)> GenerateMovements(string name, int xBoard, int yBoard, string color, BoardState state, int num_moves = 0, bool filter_suicide=false)
     {
         this.xBoard = xBoard;
         this.yBoard = yBoard;
@@ -58,13 +58,12 @@ public class Movements
 
     public void RemoveSuicideMoves()
     {
-        //TODO: Fix really doesn't work so far!
         List<int> toRemove = new List<int>();
         int idx = 0;
         foreach (var m in possMoves)
         {
-            int x = m[0];
-            int y = m[1];
+            int x = m.x;
+            int y = m.y;
             state.SetPiece(name, color, x, y, xBoard, yBoard);
 
             if (state.IsCheck(color, state))
@@ -82,16 +81,9 @@ public class Movements
 
     }
 
-    private void AddPossMove(int x, int y, int attk = 0)
+    private void AddPossMove(int x, int y, bool attk = false)
     {
-
-        // Put in additional checks here!
-        // 1. Check movements of all opp color pieces
-        //    if any can take king, then this move is not acceptable
-        // Game state = controller.GetComponent<Game>();
-
-
-        possMoves.Add(new List<int>() { x, y, attk });
+        possMoves.Add( ( x, y, attk ));
     }
 
     private void PawnMove()
@@ -119,7 +111,7 @@ public class Movements
             int possX = xBoard + i;
             if (state.PositionOnBoard(possX, possY) && state.GetPosition(possX, possY) != null && state.GetColor(possX, possY) != color)
             {
-                AddPossMove(possX, possY, 1);
+                AddPossMove(possX, possY, true);
             }
         } 
         // TODO: Add en passant *spelling
@@ -181,7 +173,7 @@ public class Movements
                     }
                     else if (state.GetColor(possX, possY) != color)
                     {
-                        AddPossMove(possX, possY, 1);
+                        AddPossMove(possX, possY, true);
                     }
                 }
             }
@@ -220,7 +212,7 @@ public class Movements
         }
         if (state.PositionOnBoard(x, y) && state.GetPosition(x, y) != null && state.GetColor(x, y) != color)
         {
-            AddPossMove(x, y, 1);
+            AddPossMove(x, y, true);
         }
 
     }

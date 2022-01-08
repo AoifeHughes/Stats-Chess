@@ -9,13 +9,79 @@ public class Game : MonoBehaviour
 {
 
     public GameObject chesspiece;
-
+    private AIPlayer AIBlack, AIWhite;
+    private bool IsBlackAI = false;
+    private bool IsWhiteAI = false; 
     private GameObject[,] positions = new GameObject[8, 8];
     private BoardState currentState;
     private List<BoardState> history = new List<BoardState>();
-
     private bool gameOver = false;
+    
 
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // FOR TESTING ONLY WHITE IS ALWAYS A PLAYER
+        IsBlackAI = true;
+
+        if (IsBlackAI)
+        {
+            AIBlack = new AIPlayer("black");
+        }
+        if (IsWhiteAI)
+        {
+            AIWhite = new AIPlayer("White");
+        }
+
+        currentState = new BoardState();
+        BoardStateToPieces(currentState);
+    }
+
+    public void Update()
+    {
+
+        if (AIBlack != null)
+        {
+            if (currentState.GetCurrentPlayer() == "black")
+            {
+                (int x, int y, int nx, int ny, bool attack) move = AIBlack.MakeMove(currentState);
+                HandleMovement(GetCPRef(move.x,move.y), move.nx, move.ny, move.attack);
+            }
+        }
+
+        if (AIWhite != null)
+        {
+
+            if (currentState.GetCurrentPlayer() == "white")
+            {
+                AIWhite.MakeMove(currentState);
+            }
+        }
+
+        if (gameOver == true && Input.GetMouseButtonDown(0))
+        {
+            gameOver = false;
+            SceneManager.LoadScene("Game");
+        }
+    }
+
+
+    public GameObject Create(string name, string player, int x, int y, bool IsAI = false)
+    {
+        GameObject obj = Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity);
+        Piece cp = obj.GetComponent<Piece>();
+        cp.name = name;
+        cp.IsAI = IsAI;
+        cp.SetPlayer(player);
+        cp.SetXYBoard(x,y);  
+        cp.Activate();
+        return obj;
+        
+    }
+
+    public BoardState GetCurrentState() { return this.currentState; }
     private void BoardStateToPieces(BoardState state)
     {
         for (int x = 0; x < state.GetLength(0); x++)
@@ -33,38 +99,6 @@ public class Game : MonoBehaviour
         }
     }
 
-    public BoardState GetCurrentState() { return this.currentState; }
-
-    private void SetBoard(GameObject[] white, GameObject[] black)
-    {
-        // Set a board layout
-    }
-
-    private void StoreBoard(GameObject[] white, GameObject[] black)
-    {
-        // save a layout to a variable
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        currentState = new BoardState();
-
-        BoardStateToPieces(currentState);
-    }
-
-
-    public GameObject Create(string name, string player, int x, int y)
-    {
-        GameObject obj = Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity);
-        Piece cp = obj.GetComponent<Piece>();
-        cp.name = name;
-        cp.SetPlayer(player);
-        cp.SetXYBoard(x,y);  
-        cp.Activate();
-        return obj;
-        
-    }
 
     public GameObject GetCPRef(int x, int y)
     {
@@ -107,20 +141,6 @@ public class Game : MonoBehaviour
         currentState.SwapPlayer();
     }
 
-
-    public bool Check(GameObject[,] board)
-    {
-        return false;
-    }
-
-    public void Update()
-    {
-        if (gameOver == true && Input.GetMouseButtonDown(0))
-        {
-            gameOver = false;
-            SceneManager.LoadScene("Game");
-        }
-    }
 
     public void Winner(string playerWinner)
     {

@@ -19,6 +19,7 @@ public class Piece : MonoBehaviour
     private int num_moves = 0;
     // sprites
     private string board = "chess";
+    public bool IsAI = false;
 
     public void Activate()
     {
@@ -56,12 +57,14 @@ public class Piece : MonoBehaviour
 
     public void OnMouseUp()
     {
-        controller = GameObject.FindGameObjectWithTag("GameController");
-        if (controller.GetComponent<Game>().GetCurrentPlayer() == color && !controller.GetComponent<Game>().IsGameOver())
+        if (!IsAI)
         {
-
-            DestroyMovePlates();
-            InitiateMovePlates();
+            controller = GameObject.FindGameObjectWithTag("GameController");
+            if (controller.GetComponent<Game>().GetCurrentPlayer() == color && !controller.GetComponent<Game>().IsGameOver())
+            {
+                DestroyMovePlates();
+                InitiateMovePlates();
+            }
         }
     }
 
@@ -70,15 +73,14 @@ public class Piece : MonoBehaviour
     {
         BoardState state = controller.GetComponent<Game>().GetCurrentState();
         Movements moves = new Movements();
-        List<List<int>> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, state, num_moves, true);
+        List<(int x, int y, bool attack)> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, state, num_moves, true);
 
-        for (int i = 0; i < possMoves.Count; i++)
+        foreach (var m in possMoves)
         {
-            int mx = possMoves[i][0];
-            int my = possMoves[i][1];
-            bool attk = (possMoves[i][2] != 0) ? true : false;
-
-            MovePlateSpawn(mx, my, attk);
+            int mx = m.x;
+            int my = m.y;
+            bool attack = m.attack;
+            MovePlateSpawn(mx, my, attack);
         }
 
     }

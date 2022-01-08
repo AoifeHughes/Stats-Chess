@@ -102,7 +102,7 @@ public class BoardState
         }
     }
 
-    private IEnumerable<(string piece, string color, int x, int y)> IterateBoard()
+    public IEnumerable<(string piece, string color, int x, int y)> IterateBoard()
     {
         for (int i = 0; i < state.GetLength(0); i++)
         {
@@ -138,11 +138,11 @@ public class BoardState
             Movements moves = new Movements();
             foreach (var m in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
             {
-                int x = m[0];
-                int y = m[1];
-                int attack = m[2];
+                int x = m.x;
+                int y = m.y;
+                bool attack = m.attack;
 
-                if (attack == 0)
+                if (attack)
                 {
                     continue;
                 } 
