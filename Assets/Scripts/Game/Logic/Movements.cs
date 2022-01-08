@@ -10,15 +10,17 @@ public class Movements
     private List<List<int>> possMoves = new List<List<int>>();
     private int xBoard, yBoard, num_moves;
     private string color;
+    private string name;
     private BoardState state;
 
-    public List<List<int>> GenerateMovements(string name, int xBoard, int yBoard, string color, BoardState state, int num_moves = 0)
+    public List<List<int>> GenerateMovements(string name, int xBoard, int yBoard, string color, BoardState state, int num_moves = 0, bool filter_suicide=false)
     {
         this.xBoard = xBoard;
         this.yBoard = yBoard;
         this.num_moves = num_moves;
         this.color = color;
         this.state = state;
+        this.name = name;
 
         switch (name)
         {
@@ -44,7 +46,39 @@ public class Movements
                 break;
         }
 
+        if (filter_suicide)
+        {
+            RemoveSuicideMoves();
+        }
+
         return possMoves;
+
+    }
+
+
+    public void RemoveSuicideMoves()
+    {
+        //TODO: Fix really doesn't work so far!
+        List<int> toRemove = new List<int>();
+        int idx = 0;
+        foreach (var m in possMoves)
+        {
+            int x = m[0];
+            int y = m[1];
+            state.SetPiece(name, color, x, y, xBoard, yBoard);
+
+            if (state.IsCheck(color, state))
+            {
+                toRemove.Add(idx);
+            }
+            state.Undo();
+            idx++;
+        }
+
+        if (toRemove.Count > 0)
+        {
+            possMoves.RemoveAll(x => toRemove.Contains(possMoves.IndexOf(x)));
+        }
 
     }
 
@@ -173,6 +207,7 @@ public class Movements
         int y = yBoard + yInc;
         while (state.PositionOnBoard(x, y) && state.GetPosition(x, y) == null)
         {
+
             AddPossMove(x, y);
             x += xInc;
             y += yInc;

@@ -70,7 +70,7 @@ public class Piece : MonoBehaviour
     {
         BoardState state = controller.GetComponent<Game>().GetCurrentState();
         Movements moves = new Movements();
-        List<List<int>> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, state, num_moves);
+        List<List<int>> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, state, num_moves, true);
 
         for (int i = 0; i < possMoves.Count; i++)
         {

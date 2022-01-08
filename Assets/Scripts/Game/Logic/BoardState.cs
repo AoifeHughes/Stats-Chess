@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class BoardState
 {
@@ -13,6 +14,9 @@ public class BoardState
 
     private string currentPlayer = "white";
 
+
+    private List<(string[,], string[,])> history = new List<(string[,], string[,])>();
+
     public BoardState()
     {
         //setup state
@@ -22,14 +26,26 @@ public class BoardState
 
         for (int i = 0; i < defaultOrder.Length; i++)
         {
-            SetPiece(defaultOrder[i], "white", i - i / 8 * 8, i / 8);
-            SetPiece(defaultOrder[i], "black", i - i / 8 * 8, 7 - i / 8);
+            SetPiece(defaultOrder[i], "white", i - i / 8 * 8, i / 8, record: false);
+            SetPiece(defaultOrder[i], "black", i - i / 8 * 8, 7 - i / 8, record: false);
         }
-
+        history.Add((state, colors));
     }
 
-    public void SetPiece(string name, string color, int x, int y, int prevX = -1, int prevY = -1)
+    public void Undo()
     {
+        this.state = history.Last().Item1;
+        this.colors = history.Last().Item2;
+    }
+
+
+    public void SetPiece(string name, string color, int x, int y, int prevX = -1, int prevY = -1, bool record = true)
+    {
+        if (record)
+        {
+            history.Add(((string[,])state.Clone(), (string[,])colors.Clone()));
+        }
+
         state[x, y] = name;
         colors[x, y] = color;
 
@@ -86,22 +102,59 @@ public class BoardState
         }
     }
 
-    public void printBoard()
+    private IEnumerable<(string piece, string color, int x, int y)> IterateBoard()
     {
-        int rowLength = state.GetLength(0);
-        int colLength = state.GetLength(1);
-
-        for (int i = 0; i < rowLength; i++)
+        for (int i = 0; i < state.GetLength(0); i++)
         {
-            for (int j = 0; j < colLength; j++)
+            for (int j = 0; j < state.GetLength(1); j++)
             {
-                if (state[i, j] == null)
-                {
-                    continue;
-                }
-                Debug.Log(string.Format("{1},{2}: {0} ", state[i, j], i, j));
+                yield return (state[i, j],colors[i, j], i, j);
             }
         }
+    }
+
+
+    private (int x,  int y) FindKing(string color)
+    {
+        foreach (var p in IterateBoard())
+        {
+            if (p.color == color && p.piece == "king")
+            {
+                return (p.x, p.y);
+            }
+        }
+
+        return (-1, -1); // fail state i.e. no king
+    }
+
+    public bool IsCheck(string color, BoardState state)
+    {
+        (int x, int y) kingXY = FindKing(color);
+
+        // for each piece of oppo color, check if they can move to king position!
+
+        foreach (var p in IterateBoard())
+        {
+            Movements moves = new Movements();
+            foreach (var m in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
+            {
+                int x = m[0];
+                int y = m[1];
+                int attack = m[2];
+
+                if (attack == 0)
+                {
+                    continue;
+                } 
+
+                if (x == kingXY.x && y == kingXY.y)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 }
