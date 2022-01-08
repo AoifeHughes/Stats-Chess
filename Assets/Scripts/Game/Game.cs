@@ -23,16 +23,17 @@ public class Game : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         // FOR TESTING ONLY WHITE IS ALWAYS A PLAYER
         IsBlackAI = true;
-
+        IsWhiteAI = true; 
         if (IsBlackAI)
         {
             AIBlack = new AIPlayer("black");
         }
         if (IsWhiteAI)
         {
-            AIWhite = new AIPlayer("White");
+            AIWhite = new AIPlayer("white");
         }
 
         currentState = new BoardState();
@@ -46,17 +47,25 @@ public class Game : MonoBehaviour
         {
             if (currentState.GetCurrentPlayer() == "black")
             {
-                (int x, int y, int nx, int ny, bool attack) move = AIBlack.MakeMove(currentState);
-                HandleMovement(GetCPRef(move.x,move.y), move.nx, move.ny, move.attack);
+                if (!AIBlack.IsThinking)
+                {
+                    AIBlack.IsThinking = true;
+                    (int x, int y, int nx, int ny, bool attack) move = AIBlack.MakeMove(currentState);
+                    HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, 1);
+                }
             }
         }
 
         if (AIWhite != null)
         {
-
             if (currentState.GetCurrentPlayer() == "white")
             {
-                AIWhite.MakeMove(currentState);
+                if (!AIBlack.IsThinking)
+                {
+                    AIBlack.IsThinking = true;
+                    (int x, int y, int nx, int ny, bool attack) move = AIWhite.MakeMove(currentState);
+                    HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, 1);
+                }
             }
         }
 
@@ -66,6 +75,7 @@ public class Game : MonoBehaviour
             SceneManager.LoadScene("Game");
         }
     }
+
 
 
     public GameObject Create(string name, string player, int x, int y, bool IsAI = false)
@@ -105,8 +115,10 @@ public class Game : MonoBehaviour
         return positions[x, y];
     }
 
-    public void HandleMovement(GameObject obj, int x, int y, bool attack)
+
+    private IEnumerator DelayMovements(GameObject obj, int x, int y, bool attack, int wait = 0)
     {
+        yield return new WaitForSeconds(wait);
         if (attack)
         {
             Destroy(positions[x, y]);
@@ -128,7 +140,19 @@ public class Game : MonoBehaviour
         NextTurn();
         piece.DestroyMovePlates();
 
+        if (AIBlack != null)
+        {
+            AIBlack.IsThinking = false;
+        }
+        if (AIWhite != null)
+        {
+            AIWhite.IsThinking = false;
+        }
+    }
 
+    public void HandleMovement(GameObject obj, int x, int y, bool attack, int wait = 0)
+    {
+        StartCoroutine(DelayMovements(obj, x, y, attack, wait));
     }
 
 

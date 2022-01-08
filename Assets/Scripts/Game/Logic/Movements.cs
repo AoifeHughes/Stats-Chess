@@ -58,6 +58,8 @@ public class Movements
 
     public void RemoveSuicideMoves()
     {
+        //TODO: Fix
+        // Stops putting yourself into check, but doesn't force you to remove yourself from it!
         List<int> toRemove = new List<int>();
         int idx = 0;
         foreach (var m in possMoves)

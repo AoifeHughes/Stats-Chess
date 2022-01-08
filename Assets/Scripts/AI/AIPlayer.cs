@@ -5,7 +5,8 @@ using System.Collections.Generic;
 public class AIPlayer
 {
     private string color;
-    private string AIType; 
+    private string AIType;
+    public bool IsThinking = false;
 
     public AIPlayer(string color, string AIType = "random")
     {
