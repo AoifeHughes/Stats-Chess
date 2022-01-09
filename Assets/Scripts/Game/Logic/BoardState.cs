@@ -142,7 +142,7 @@ public class BoardState
                 int y = m.y;
                 bool attack = m.attack;
 
-                if (attack)
+                if (!attack)
                 {
                     continue;
                 } 

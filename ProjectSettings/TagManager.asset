@@ -7,6 +7,8 @@ TagManager:
   - MovePlate
   - WinnerText
   - RestartText
+  - GridManager
+  - Tile
   layers:
   - Default
   - TransparentFX

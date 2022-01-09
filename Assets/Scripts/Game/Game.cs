@@ -25,8 +25,7 @@ public class Game : MonoBehaviour
     {
 
         // FOR TESTING ONLY WHITE IS ALWAYS A PLAYER
-        IsBlackAI = true;
-        IsWhiteAI = true; 
+
         if (IsBlackAI)
         {
             AIBlack = new AIPlayer("black");
@@ -42,7 +41,7 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
-
+        int timer = 0;
         if (AIBlack != null)
         {
             if (currentState.GetCurrentPlayer() == "black")
@@ -51,7 +50,7 @@ public class Game : MonoBehaviour
                 {
                     AIBlack.IsThinking = true;
                     (int x, int y, int nx, int ny, bool attack) move = AIBlack.MakeMove(currentState);
-                    HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, 1);
+                    HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
                 }
             }
         }
@@ -60,11 +59,11 @@ public class Game : MonoBehaviour
         {
             if (currentState.GetCurrentPlayer() == "white")
             {
-                if (!AIBlack.IsThinking)
+                if (!AIWhite.IsThinking)
                 {
-                    AIBlack.IsThinking = true;
+                    AIWhite.IsThinking = true;
                     (int x, int y, int nx, int ny, bool attack) move = AIWhite.MakeMove(currentState);
-                    HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, 1);
+                    HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
                 }
             }
         }
@@ -175,8 +174,4 @@ public class Game : MonoBehaviour
 
     }
 
-    internal bool PositionOnBoard(int possX, int possY)
-    {
-        throw new NotImplementedException();
-    }
 }

@@ -9,7 +9,7 @@ public class Piece : MonoBehaviour
     // References 
     [SerializeField] public GameObject controller;
     [SerializeField] public GameObject movePlate;
-
+    [SerializeField] public GridManager chessboard;
 
     // Positions
     private int xBoard = -1;
@@ -32,11 +32,12 @@ public class Piece : MonoBehaviour
 
     public void SetCoords()
     {
-        float factor = 0.66f;
-        float shift = -2.3f;
-        float x = xBoard * factor + shift;
-        float y = yBoard * factor + shift;
-        this.transform.position = new Vector3(x, y, -1.0f);
+        chessboard = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
+
+        Tile tile = chessboard.GetTileAtPosition(new Vector2(xBoard, yBoard));
+        Vector3 pos = tile.transform.position;
+
+        this.transform.position = new Vector3(pos[0], pos[1], -1.0f);
     }
 
 
@@ -72,6 +73,7 @@ public class Piece : MonoBehaviour
     public void InitiateMovePlates()
     {
         BoardState state = controller.GetComponent<Game>().GetCurrentState();
+        chessboard = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
         Movements moves = new Movements();
         List<(int x, int y, bool attack)> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, state, num_moves, true);
 
@@ -80,18 +82,18 @@ public class Piece : MonoBehaviour
             int mx = m.x;
             int my = m.y;
             bool attack = m.attack;
-            MovePlateSpawn(mx, my, attack);
+            chessboard.GetTileAtPosition(new Vector2(mx, my)).TurnOnMarkers(attack);
+            chessboard.GetTileAtPosition(new Vector2(mx, my)).SetReference(gameObject);
         }
 
     }
 
     public void DestroyMovePlates()
     {
-
-        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
-        for (int i = 0; i < movePlates.Length; i++)
+        GameObject[] tiles = GameObject.FindGameObjectsWithTag("Tile");
+        for (int i = 0; i < tiles.Length; i++)
         {
-            Destroy(movePlates[i]);
+            tiles[i].GetComponent<Tile>().TurnOffMarkers();
         }
     }
 
