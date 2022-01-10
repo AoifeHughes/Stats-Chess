@@ -14,7 +14,6 @@ public class Game : MonoBehaviour
     private bool IsWhiteAI = false; 
     private GameObject[,] positions = new GameObject[8, 8];
     private BoardState currentState;
-    private List<BoardState> history = new List<BoardState>();
     private bool gameOver = false;
     
 
@@ -43,7 +42,7 @@ public class Game : MonoBehaviour
     {
         if (!gameOver)
         {
-            int timer = 2;
+            int timer = 1;
             if (AIBlack != null)
             {
                 if (currentState.GetCurrentPlayer() == "black")
