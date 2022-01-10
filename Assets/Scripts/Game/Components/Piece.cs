@@ -18,7 +18,6 @@ public class Piece : MonoBehaviour
     private string color;
     private int num_moves = 0;
     // sprites
-    private string board = "chess";
     public bool IsAI = false;
 
     IDictionary<string, int> SpriteNumbers = new Dictionary<string, int>()

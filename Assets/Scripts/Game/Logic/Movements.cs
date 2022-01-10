@@ -51,6 +51,7 @@ public class Movements
             RemoveSuicideMoves();
         }
 
+        // When this is zero then checkmate
         return possMoves;
 
     }
