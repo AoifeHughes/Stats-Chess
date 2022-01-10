@@ -8,11 +8,13 @@ public class Tile : MonoBehaviour
     [SerializeField] private GameObject _highlight;
     [SerializeField] private GameObject _attack;
     [SerializeField] private GameObject _moveable;
+
+
     private int x;
     private int y;
 
     [SerializeField] public GameObject controller;
-    GameObject reference = null;
+    GameObject reference;
 
     public void SetCoords(int x, int y)
     {
@@ -37,14 +39,54 @@ public class Tile : MonoBehaviour
 
     void OnMouseUp()
     {
-        // reimpliment
+        controller = GameObject.FindGameObjectWithTag("GameController");
 
         if (_moveable.activeSelf || _attack.activeSelf)
         {
-        controller = GameObject.FindGameObjectWithTag("GameController");
-        controller.GetComponent<Game>().HandleMovement(reference, x, y, _attack.activeSelf);
+            controller.GetComponent<Game>().HandleMovement(reference, x, y, _attack.activeSelf);
         }
 
+        // Setup Movement
+        DestroyMoveMarks();
+        //Check if there's a piece
+        BoardState state = controller.GetComponent<Game>().GetCurrentState();
+        string curPlayer = controller.GetComponent<Game>().GetCurrentPlayer();
+        if (!controller.GetComponent<Game>().IsPlayerAI(curPlayer))
+        {
+            GameObject objRef = controller.GetComponent<Game>().GetCPRef(x, y);
+            if (objRef != null)
+            {
+                Piece p = objRef.GetComponent<Piece>();
+                if (curPlayer == p.GetPlayer())
+                {
+
+
+                    GridManager chessboard = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
+                    Movements moves = new Movements();
+                    List<(int x, int y, bool attack)> possMoves = moves.GenerateMovements(p.name, x, y, p.GetPlayer(), state, p.GetNumMoves(), true);
+
+                    foreach (var m in possMoves)
+                    {
+                        int mx = m.x;
+                        int my = m.y;
+                        bool attack = m.attack;
+                        chessboard.GetTileAtPosition(new Vector2(mx, my)).TurnOnMarkers(attack, objRef);
+                    }
+
+
+                }
+            }
+
+        }
+    }
+
+    public void DestroyMoveMarks()
+    {
+        GameObject[] tiles = GameObject.FindGameObjectsWithTag("Tile");
+        for (int i = 0; i < tiles.Length; i++)
+        {
+            tiles[i].GetComponent<Tile>().TurnOffMarkers();
+        }
     }
 
     public void SetReference(GameObject obj)
@@ -57,8 +99,9 @@ public class Tile : MonoBehaviour
         return reference;
     }
 
-    public void TurnOnMarkers(bool attack)
+    public void TurnOnMarkers(bool attack, GameObject refPiece)
     {
+        reference = refPiece;
         if (attack)
         {
             _attack.SetActive(true);
@@ -71,6 +114,7 @@ public class Tile : MonoBehaviour
 
     public void TurnOffMarkers()
     {
+        reference = null ;
         _attack.SetActive(false);
         _moveable.SetActive(false);
     }

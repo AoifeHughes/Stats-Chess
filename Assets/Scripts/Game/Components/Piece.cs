@@ -56,46 +56,41 @@ public class Piece : MonoBehaviour
     public void SetPlayer(string p) { color = p; }
     public void IncNumMoves() { num_moves += 1; }
 
-    public void OnMouseUp()
-    {
-        if (!IsAI)
-        {
-            controller = GameObject.FindGameObjectWithTag("GameController");
-            if (controller.GetComponent<Game>().GetCurrentPlayer() == color && !controller.GetComponent<Game>().IsGameOver())
-            {
-                DestroyMovePlates();
-                InitiateMovePlates();
-            }
-        }
-    }
+    //public void OnMouseUp()
+    //{
+    //    //TODO: Move this to the tile object!
+    //    // Currently collider is turned off to make it clear what's needed
+    //    if (!IsAI)
+    //    {
+    //        controller = GameObject.FindGameObjectWithTag("GameController");
+    //        if (controller.GetComponent<Game>().GetCurrentPlayer() == color && !controller.GetComponent<Game>().IsGameOver())
+    //        {
+    //            DestroyMovePlates();
+    //            InitiateMovePlates();
+    //        }
+    //    }
+    //}
 
 
-    public void InitiateMovePlates()
-    {
-        BoardState state = controller.GetComponent<Game>().GetCurrentState();
-        chessboard = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
-        Movements moves = new Movements();
-        List<(int x, int y, bool attack)> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, state, num_moves, true);
+    //public void InitiateMovePlates()
+    //{
+    //    BoardState state = controller.GetComponent<Game>().GetCurrentState();
+    //    chessboard = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
+    //    Movements moves = new Movements();
+    //    List<(int x, int y, bool attack)> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, state, num_moves, true);
 
-        foreach (var m in possMoves)
-        {
-            int mx = m.x;
-            int my = m.y;
-            bool attack = m.attack;
-            chessboard.GetTileAtPosition(new Vector2(mx, my)).TurnOnMarkers(attack);
-            chessboard.GetTileAtPosition(new Vector2(mx, my)).SetReference(gameObject);
-        }
+    //    foreach (var m in possMoves)
+    //    {
+    //        int mx = m.x;
+    //        int my = m.y;
+    //        bool attack = m.attack;
+    //        chessboard.GetTileAtPosition(new Vector2(mx, my)).TurnOnMarkers(attack);
+    //        chessboard.GetTileAtPosition(new Vector2(mx, my)).SetReference(gameObject);
+    //    }
 
-    }
+    //}
 
-    public void DestroyMovePlates()
-    {
-        GameObject[] tiles = GameObject.FindGameObjectsWithTag("Tile");
-        for (int i = 0; i < tiles.Length; i++)
-        {
-            tiles[i].GetComponent<Tile>().TurnOffMarkers();
-        }
-    }
+
 
 
 

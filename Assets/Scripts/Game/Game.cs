@@ -10,7 +10,7 @@ public class Game : MonoBehaviour
 
     public GameObject chesspiece;
     private AIPlayer AIBlack, AIWhite;
-    private bool IsBlackAI = false;
+    private bool IsBlackAI = true;
     private bool IsWhiteAI = false; 
     private GameObject[,] positions = new GameObject[8, 8];
     private BoardState currentState;
@@ -75,7 +75,15 @@ public class Game : MonoBehaviour
         }
     }
 
-
+    public bool IsPlayerAI(string player)
+    {
+        if (player == "white")
+        {
+            return IsWhiteAI;
+        }
+        return IsBlackAI;
+        
+    }
 
     public GameObject Create(string name, string player, int x, int y, bool IsAI = false)
     {
@@ -117,7 +125,10 @@ public class Game : MonoBehaviour
 
     private IEnumerator DelayMovements(GameObject obj, int x, int y, bool attack, int wait = 0)
     {
+
         yield return new WaitForSeconds(wait);
+        Debug.Log("DOING STUFF");
+
         if (attack)
         {
             Destroy(positions[x, y]);
@@ -137,7 +148,40 @@ public class Game : MonoBehaviour
         piece.IncNumMoves();
         positions[x, y] = obj;
         NextTurn();
-        piece.DestroyMovePlates();
+        //piece.DestroyMovePlates();
+
+        if (AIBlack != null)
+        {
+            AIBlack.IsThinking = false;
+        }
+        if (AIWhite != null)
+        {
+            AIWhite.IsThinking = false;
+        }
+    }
+
+    private void DoMovements(GameObject obj, int x, int y, bool attack, int wait = 0)
+    {
+        if (attack)
+        {
+            Destroy(positions[x, y]);
+        }
+
+        Piece piece = obj.GetComponent<Piece>();
+        int prevX = piece.GetXBoard();
+        int prevY = piece.GetYBoard();
+
+        //Do board state
+        currentState.SetPiece(piece.GetName(), piece.GetPlayer(), x, y, prevX, prevY);
+
+        // Do visuals
+
+        positions[prevX, prevY] = null;
+        piece.SetXYBoard(x, y);
+        piece.IncNumMoves();
+        positions[x, y] = obj;
+        NextTurn();
+        //piece.DestroyMovePlates();
 
         if (AIBlack != null)
         {
@@ -151,7 +195,10 @@ public class Game : MonoBehaviour
 
     public void HandleMovement(GameObject obj, int x, int y, bool attack, int wait = 0)
     {
-        StartCoroutine(DelayMovements(obj, x, y, attack, wait));
+        Debug.Log("Handling movements!");
+        //StartCoroutine(DelayMovements(obj, x, y, attack, wait));
+        //DelayMovements(obj, x, y, attack, wait);
+        DoMovements(obj, x, y, attack, wait);
     }
 
 
