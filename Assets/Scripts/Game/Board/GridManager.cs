@@ -26,13 +26,13 @@ public class GridManager : MonoBehaviour
         float cameraHeight = Camera.main.orthographicSize * 2;
         float cameraWidth = cameraHeight * Screen.width / Screen.height; // cameraHeight * aspect ratio
 
-        float width_per_block = cameraWidth / 8;
+        float width_per_block = (cameraWidth < cameraHeight) ? cameraWidth / 8 : cameraHeight / 8;
         _tiles = new Dictionary<Vector2, Tile>();
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
             {
-                var spawnedTile = Instantiate(_tilePrefab, new Vector3((x* width_per_block)-(3.5f*width_per_block), (y* width_per_block)-cameraHeight/4, 10), Quaternion.identity);
+                var spawnedTile = Instantiate(_tilePrefab, new Vector3((x * width_per_block) - (3.5f * width_per_block), (y * width_per_block) - 3.5f * width_per_block, 10), Quaternion.identity);
                 spawnedTile.name = $"Tile {x} {y}";
 
                 var isOffset = (x % 2 == 0 && y % 2 != 0) || (x % 2 != 0 && y % 2 == 0);

@@ -21,17 +21,53 @@ public class Piece : MonoBehaviour
     private string board = "chess";
     public bool IsAI = false;
 
+    IDictionary<string, int> SpriteNumbers = new Dictionary<string, int>()
+    {
+        {"pawn",0 }, {"knight", 1}, {"bishop",2}, {"rook",3}, {"queen",4},
+        {"king",5 }
+    };
+
+
+    private Sprite GetSprite(string name)
+    {
+        Sprite[] all = Resources.LoadAll<Sprite>("Sprites/chess");
+
+        foreach (var s in all)
+        {
+            if (s.name == name)
+            {
+                return s;
+            }
+        }
+        return null;
+    }
+
     public void Activate()
     {
+  
         SetCoords();
-        string loc = string.Format("Sprites/{0}/{1}_{2}", board, this.color, this.name);
-        this.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(loc);
+        int n = SpriteNumbers[this.name];
+        if (color == "white")
+        {
+            n += 6;
+        }
+        string sn = string.Format("chess_{0}", n);
+        this.GetComponent<SpriteRenderer>().sprite = GetSprite(sn);
         this.GetComponent<SpriteRenderer>().sprite.texture.filterMode = FilterMode.Point;
+
+        float cameraHeight = Camera.main.orthographicSize * 2;
+        float cameraWidth = cameraHeight * Screen.width / Screen.height; // cameraHeight * aspect ratio
+
+        float width_per_block = (cameraWidth < cameraHeight) ? cameraWidth / 8 : cameraHeight / 8;
+        this.GetComponent<SpriteRenderer>().transform.localScale = new Vector3(width_per_block, width_per_block, width_per_block);
+
+
 
     }
 
     public void SetCoords()
     {
+
         chessboard = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
 
         Tile tile = chessboard.GetTileAtPosition(new Vector2(xBoard, yBoard));
@@ -55,43 +91,6 @@ public class Piece : MonoBehaviour
     }
     public void SetPlayer(string p) { color = p; }
     public void IncNumMoves() { num_moves += 1; }
-
-    //public void OnMouseUp()
-    //{
-    //    //TODO: Move this to the tile object!
-    //    // Currently collider is turned off to make it clear what's needed
-    //    if (!IsAI)
-    //    {
-    //        controller = GameObject.FindGameObjectWithTag("GameController");
-    //        if (controller.GetComponent<Game>().GetCurrentPlayer() == color && !controller.GetComponent<Game>().IsGameOver())
-    //        {
-    //            DestroyMovePlates();
-    //            InitiateMovePlates();
-    //        }
-    //    }
-    //}
-
-
-    //public void InitiateMovePlates()
-    //{
-    //    BoardState state = controller.GetComponent<Game>().GetCurrentState();
-    //    chessboard = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
-    //    Movements moves = new Movements();
-    //    List<(int x, int y, bool attack)> possMoves = moves.GenerateMovements(this.name, xBoard, yBoard, color, state, num_moves, true);
-
-    //    foreach (var m in possMoves)
-    //    {
-    //        int mx = m.x;
-    //        int my = m.y;
-    //        bool attack = m.attack;
-    //        chessboard.GetTileAtPosition(new Vector2(mx, my)).TurnOnMarkers(attack);
-    //        chessboard.GetTileAtPosition(new Vector2(mx, my)).SetReference(gameObject);
-    //    }
-
-    //}
-
-
-
 
 
     private void MovePlateSpawn(int matX, int matY, bool attk=false)

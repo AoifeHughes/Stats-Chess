@@ -41,29 +41,32 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
-        int timer = 0;
-        if (AIBlack != null)
+        if (!gameOver)
         {
-            if (currentState.GetCurrentPlayer() == "black")
+            int timer = 2;
+            if (AIBlack != null)
             {
-                if (!AIBlack.IsThinking)
+                if (currentState.GetCurrentPlayer() == "black")
                 {
-                    AIBlack.IsThinking = true;
-                    (int x, int y, int nx, int ny, bool attack) move = AIBlack.MakeMove(currentState);
-                    HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
+                    if (!AIBlack.IsThinking)
+                    {
+                        AIBlack.IsThinking = true;
+                        (int x, int y, int nx, int ny, bool attack) move = AIBlack.MakeMove(currentState);
+                        HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
+                    }
                 }
             }
-        }
 
-        if (AIWhite != null)
-        {
-            if (currentState.GetCurrentPlayer() == "white")
+            if (AIWhite != null)
             {
-                if (!AIWhite.IsThinking)
+                if (currentState.GetCurrentPlayer() == "white")
                 {
-                    AIWhite.IsThinking = true;
-                    (int x, int y, int nx, int ny, bool attack) move = AIWhite.MakeMove(currentState);
-                    HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
+                    if (!AIWhite.IsThinking)
+                    {
+                        AIWhite.IsThinking = true;
+                        (int x, int y, int nx, int ny, bool attack) move = AIWhite.MakeMove(currentState);
+                        HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
+                    }
                 }
             }
         }
@@ -125,10 +128,7 @@ public class Game : MonoBehaviour
 
     private IEnumerator DelayMovements(GameObject obj, int x, int y, bool attack, int wait = 0)
     {
-
         yield return new WaitForSeconds(wait);
-        Debug.Log("DOING STUFF");
-
         if (attack)
         {
             Destroy(positions[x, y]);
@@ -148,7 +148,6 @@ public class Game : MonoBehaviour
         piece.IncNumMoves();
         positions[x, y] = obj;
         NextTurn();
-        //piece.DestroyMovePlates();
 
         if (AIBlack != null)
         {
@@ -160,45 +159,11 @@ public class Game : MonoBehaviour
         }
     }
 
-    private void DoMovements(GameObject obj, int x, int y, bool attack, int wait = 0)
-    {
-        if (attack)
-        {
-            Destroy(positions[x, y]);
-        }
-
-        Piece piece = obj.GetComponent<Piece>();
-        int prevX = piece.GetXBoard();
-        int prevY = piece.GetYBoard();
-
-        //Do board state
-        currentState.SetPiece(piece.GetName(), piece.GetPlayer(), x, y, prevX, prevY);
-
-        // Do visuals
-
-        positions[prevX, prevY] = null;
-        piece.SetXYBoard(x, y);
-        piece.IncNumMoves();
-        positions[x, y] = obj;
-        NextTurn();
-        //piece.DestroyMovePlates();
-
-        if (AIBlack != null)
-        {
-            AIBlack.IsThinking = false;
-        }
-        if (AIWhite != null)
-        {
-            AIWhite.IsThinking = false;
-        }
-    }
 
     public void HandleMovement(GameObject obj, int x, int y, bool attack, int wait = 0)
     {
         Debug.Log("Handling movements!");
-        //StartCoroutine(DelayMovements(obj, x, y, attack, wait));
-        //DelayMovements(obj, x, y, attack, wait);
-        DoMovements(obj, x, y, attack, wait);
+        StartCoroutine(DelayMovements(obj, x, y, attack, wait));
     }
 
 
