@@ -37,7 +37,6 @@ public class AIPlayer
 
     public (int x, int y, int nx, int ny, bool attack) MakeRandomMove(BoardState state)
     {
-        Random rnd = new Random();
         List<(int, int, int, int, bool )> validMoves = new List<(int, int, int, int, bool)>();
 
         // Pick random piece of color and make legal move
@@ -59,14 +58,50 @@ public class AIPlayer
             }
         }
 
-        if (validMoves.Count > 0 )
+        if (validMoves.Count > 0)
         {
-            int idx = rnd.Next(validMoves.Count);
+            int idx = CanAnyMoveCheck(validMoves, state);
             return validMoves[idx];
         }
         
         return (-1, -1, -1, -1, false);
 
+    }
+
+    private int CanAnyMoveCheck(List<(int x, int y, int nx, int ny, bool attack )> moves, BoardState state)
+    {
+        Random rnd = new Random();
+
+        List<int> betterMoves = new List<int>();
+        int idx =0;
+        foreach (var m in moves)
+        {
+            int x = m.x;
+            int y = m.y;
+            string name = state.GetPosition(x,y);
+            state.SetPiece(name, color, x, y, m.nx, m.ny);
+
+            switch (state.CheckPlayState(color, state))
+            {
+                case BoardState.Conditions.Checkmate:
+                    return idx;
+                case BoardState.Conditions.Check:
+                    betterMoves.Add(idx);
+                    break;
+                default:
+                    break;
+            }
+            state.Undo();
+            idx++;
+        }
+
+       if (betterMoves.Count > 0)
+        {
+            idx = rnd.Next(betterMoves.Count);
+            return idx;
+        }
+
+        return rnd.Next(moves.Count);
     }
 
     public string GetColor()

@@ -12,7 +12,7 @@ public class Game : MonoBehaviour
     public Text winnerText;
     private AIPlayer AIBlack, AIWhite;
     private bool IsBlackAI = true;
-    private bool IsWhiteAI = true; 
+    private bool IsWhiteAI = false; 
     private GameObject[,] positions = new GameObject[8, 8];
     private BoardState currentState;
     private bool gameOver = false;
