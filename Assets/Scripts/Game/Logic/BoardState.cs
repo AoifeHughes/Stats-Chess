@@ -9,6 +9,14 @@ public class BoardState
     private string[,] state;
     private string[,] colors;
 
+    public enum Conditions
+    {
+        Check,
+        Checkmate,
+        Draw,
+        Play
+    }
+
     public static string[] defaultOrder = { "rook", "knight", "bishop", "queen", "king", "bishop", "knight","rook",
                                            "pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn"};
 
@@ -30,6 +38,18 @@ public class BoardState
             SetPiece(defaultOrder[i], "black", i - i / 8 * 8, 7 - i / 8, record: false);
         }
         history.Add((state, colors));
+    }
+
+    public int CountPieces()
+    {
+        int count = 0;
+        for (int k = 0; k < state.GetLength(0); k++)
+            for (int l = 0; l < state.GetLength(1); l++)
+                if (state[k,l] != null)
+                {
+                    count++;
+                }
+        return count;
     }
 
     public void Undo()
@@ -125,6 +145,61 @@ public class BoardState
         }
 
         return (-1, -1); // fail state i.e. no king
+    }
+
+    public Conditions CheckPlayState(string color, BoardState state)
+    {
+        (int x, int y) kingXY = FindKing(color);
+
+        // for each piece of oppo color, check if they can move to king position!
+        bool check = false;
+        foreach (var p in IterateBoard())
+        {   
+            if (p.color == color)
+            {
+                continue;
+            }
+
+            Movements moves = new Movements();
+            foreach (var m in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
+            {
+                int x = m.x;
+                int y = m.y;
+                bool attack = m.attack;
+
+                if (!attack)
+                {
+                    continue;
+                } 
+
+                if (x == kingXY.x && y == kingXY.y)
+                {
+                    check = true;
+                }
+            }
+        }
+        // now check if color can move
+        int tn = 0;
+        foreach (var p in IterateBoard())
+        {   
+            if (p.color != color)
+            {
+                continue;
+            }
+            Movements moves = new Movements();
+            tn += moves.GenerateMovements(p.piece, p.x, p.y, p.color, state).Count;
+        }
+
+        if (check && tn == 0)
+        {
+            return Conditions.Checkmate;
+        }
+
+        if (tn == 0)
+        {
+            return Conditions.Draw;
+        }
+        return Conditions.Play;
     }
 
     public bool IsCheck(string color, BoardState state)

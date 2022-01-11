@@ -9,9 +9,10 @@ public class Game : MonoBehaviour
 {
 
     public GameObject chesspiece;
+    public Text winnerText;
     private AIPlayer AIBlack, AIWhite;
     private bool IsBlackAI = true;
-    private bool IsWhiteAI = false; 
+    private bool IsWhiteAI = true; 
     private GameObject[,] positions = new GameObject[8, 8];
     private BoardState currentState;
     private bool gameOver = false;
@@ -22,8 +23,6 @@ public class Game : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-        // FOR TESTING ONLY WHITE IS ALWAYS A PLAYER
 
         if (IsBlackAI)
         {
@@ -42,39 +41,41 @@ public class Game : MonoBehaviour
     {
         if (!gameOver)
         {
-            int timer = 1;
-            if (AIBlack != null)
-            {
-                if (currentState.GetCurrentPlayer() == "black")
-                {
-                    if (!AIBlack.IsThinking)
-                    {
-                        AIBlack.IsThinking = true;
-                        (int x, int y, int nx, int ny, bool attack) move = AIBlack.MakeMove(currentState);
-                        HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
-                    }
-                }
-            }
-
-            if (AIWhite != null)
-            {
-                if (currentState.GetCurrentPlayer() == "white")
-                {
-                    if (!AIWhite.IsThinking)
-                    {
-                        AIWhite.IsThinking = true;
-                        (int x, int y, int nx, int ny, bool attack) move = AIWhite.MakeMove(currentState);
-                        HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
-                    }
-                }
-            }
+            HandleAI(AIWhite);
+            HandleAI(AIBlack);
         }
 
         if (gameOver == true && Input.GetMouseButtonDown(0))
         {
+            Debug.Log("GAME OVER!");
             gameOver = false;
             SceneManager.LoadScene("Game");
         }
+    }
+
+
+    private void HandleAI(AIPlayer AIColor, int timer=0)
+    {
+            if (AIColor != null)
+            {
+                if (currentState.GetCurrentPlayer() == AIColor.GetColor())
+                {
+                    if (!AIColor.IsThinking)
+                    {
+                        AIColor.IsThinking = true;
+                        (int x, int y, int nx, int ny, bool attack) move = AIColor.MakeMove(currentState);
+
+                        if (move.x >= 0)
+                        {
+                            HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
+                        }
+                        else
+                        {
+                            NextTurn();
+                        }
+                    }
+                }
+            }
     }
 
     public bool IsPlayerAI(string player)
@@ -161,7 +162,6 @@ public class Game : MonoBehaviour
 
     public void HandleMovement(GameObject obj, int x, int y, bool attack, int wait = 0)
     {
-        Debug.Log("Handling movements!");
         StartCoroutine(DelayMovements(obj, x, y, attack, wait));
     }
 
@@ -172,16 +172,52 @@ public class Game : MonoBehaviour
 
     public void NextTurn()
     {
+
+
+        switch (currentState.CheckPlayState(GetCurrentPlayer(), currentState))
+        {
+            case BoardState.Conditions.Checkmate:
+            {
+                string winner = (GetCurrentPlayer() == "white") ? "black" : "white";
+                Winner(winner);
+                break;
+            }
+            case BoardState.Conditions.Draw:
+            {
+                Draw();
+                break;
+            }
+            default: break;
+
+        }
+
+        if (currentState.CountPieces() == 2)
+        {
+            Draw();
+        }
+
         currentState.SwapPlayer();
+        // End game if needs be!
+
     }
 
 
     public void Winner(string playerWinner)
     {
+        Debug.Log("GameOver");
         gameOver = true;
-        GameObject.FindGameObjectWithTag("WinnerText").GetComponent<Text>().enabled = true;
-        GameObject.FindGameObjectWithTag("WinnerText").GetComponent<Text>().text = playerWinner + " Wins!";
+        winnerText.enabled = true;
+        winnerText.text = playerWinner + " Wins!";
         GameObject.FindGameObjectWithTag("RestartText").GetComponent<Text>().enabled = true;
+
+    }
+
+    public void Draw()
+    {
+        Debug.Log("GameOver");
+        gameOver = true;
+        winnerText.enabled = true;
+        winnerText.text = "Draw";
 
     }
 

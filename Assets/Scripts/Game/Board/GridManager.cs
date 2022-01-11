@@ -43,7 +43,6 @@ public class GridManager : MonoBehaviour
                 _tiles[new Vector2(x, y)] = spawnedTile;
             }
         }
-        Debug.Log(_tiles.Count);
     }
 
     public Tile GetTileAtPosition(Vector2 pos)

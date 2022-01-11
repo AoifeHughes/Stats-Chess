@@ -31,7 +31,6 @@ public class AIPlayer
                 throw new InvalidOperationException("AI SPECIFIED NOT FOUND");
         }
 
-        // FAILURE
         return (x, y, nx, ny, attack);
         
     }
@@ -60,9 +59,19 @@ public class AIPlayer
             }
         }
 
-        int idx = rnd.Next(validMoves.Count);
-        return validMoves[idx];
+        if (validMoves.Count > 0 )
+        {
+            int idx = rnd.Next(validMoves.Count);
+            return validMoves[idx];
+        }
+        
+        return (-1, -1, -1, -1, false);
 
+    }
+
+    public string GetColor()
+    {
+        return this.color;
     }
 
 }
