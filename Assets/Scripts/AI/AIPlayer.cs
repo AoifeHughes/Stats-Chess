@@ -89,8 +89,11 @@ public class AIPlayer
                     betterMoves.Add(idx);
                     break;
                 default:
+                    if (m.attack)
+                        betterMoves.Add(idx);
                     break;
             }
+            
             state.Undo();
             idx++;
         }
@@ -98,7 +101,7 @@ public class AIPlayer
        if (betterMoves.Count > 0)
         {
             idx = rnd.Next(betterMoves.Count);
-            return idx;
+            return betterMoves[idx];
         }
 
         return rnd.Next(moves.Count);
