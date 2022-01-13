@@ -13,7 +13,7 @@ public class Movements
     private string name;
     private BoardState state;
 
-    public List<(int x, int y, bool attack)> GenerateMovements(string name, int xBoard, int yBoard, string color, BoardState state, int num_moves = 0, bool filter_suicide=false)
+    public List<(int x, int y, bool attack)> GenerateMovements(string name, int xBoard, int yBoard, string color, BoardState state, int num_moves = 0, bool filter_self_check=false)
     {
         this.xBoard = xBoard;
         this.yBoard = yBoard;
@@ -46,9 +46,9 @@ public class Movements
                 break;
         }
 
-        if (filter_suicide)
+        if (filter_self_check)
         {
-            RemoveSuicideMoves();
+            RemoveSelfCheck();
         }
 
         // When this is zero then checkmate
@@ -57,7 +57,7 @@ public class Movements
     }
 
 
-    public void RemoveSuicideMoves()
+    public void RemoveSelfCheck()
     {
         List<int> toRemove = new List<int>();
         int idx = 0;
@@ -65,7 +65,7 @@ public class Movements
         {
             int x = m.x;
             int y = m.y;
-            state.SetPiece(name, color, x, y, xBoard, yBoard);
+            state.SetPiece(name, color, x, y, xBoard, yBoard, record: false);
 
             if (state.IsCheck(color, state))
             {

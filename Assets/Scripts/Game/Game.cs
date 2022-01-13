@@ -53,6 +53,34 @@ public class Game : MonoBehaviour
         }
     }
 
+    public void NextTurn()
+    {
+
+        currentState.SwapPlayer();
+        switch (currentState.CheckPlayState(GetCurrentPlayer(), currentState))
+        {
+            case BoardState.Conditions.Checkmate:
+                {
+                    Debug.Log("Winner");
+                    string winner = (GetCurrentPlayer() == "white") ? "black" : "white";
+                    Winner(winner);
+                    break;
+                }
+            case BoardState.Conditions.Draw:
+                {
+                    Debug.Log("Draw");
+                    Draw();
+                    break;
+                }
+            default: break;
+
+        }
+
+        if (currentState.CountPieces() == 2)
+        {
+            Draw();
+        }
+    }
 
     private void HandleAI(AIPlayer AIColor, int timer=0)
     {
@@ -66,13 +94,12 @@ public class Game : MonoBehaviour
                         (int x, int y, int nx, int ny, bool attack) = AIColor.MakeMove(currentState);
 
                         if (x >= 0)
-                        {
-                            HandleMovement(GetCPRef(x, y), nx, ny, attack, timer);
+                    {
+                        HandleMovement(GetCPRef(x, y), nx, ny, attack, timer);
                         }
                         else
                         {
                         Draw();
-                            //NextTurn();
                         }
                     }
                 }
@@ -171,38 +198,7 @@ public class Game : MonoBehaviour
 
     public bool IsGameOver() { return gameOver; }
 
-    public void NextTurn()
-    {
 
-        currentState.SwapPlayer();
-        switch (currentState.CheckPlayState(GetCurrentPlayer(), currentState))
-        {
-            case BoardState.Conditions.Checkmate:
-            {
-                Debug.Log("Winner");
-                string winner = (GetCurrentPlayer() == "white") ? "black" : "white";
-                Winner(winner);
-                break;
-            }
-            case BoardState.Conditions.Draw:
-            {
-                Debug.Log("Draw");
-                Draw();
-                break;
-            }
-            default: break;
-
-        }
-
-        if (currentState.CountPieces() == 2)
-        {
-            Draw();
-        }
-
-        
-        // End game if needs be!
-
-    }
 
 
     public void Winner(string playerWinner)

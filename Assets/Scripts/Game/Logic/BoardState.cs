@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class BoardState
+public class BoardState : ICloneable
 {
 
     private string[,] state;
@@ -23,7 +23,7 @@ public class BoardState
     private string currentPlayer = "white";
 
 
-    private List<(string[,], string[,])> history = new List<(string[,], string[,])>();
+    private List<(string[,], string[,])> history;
 
     public BoardState()
     {
@@ -37,7 +37,22 @@ public class BoardState
             SetPiece(defaultOrder[i], "white", i - i / 8 * 8, i / 8, record: false);
             SetPiece(defaultOrder[i], "black", i - i / 8 * 8, 7 - i / 8, record: false);
         }
-        history.Add((state, colors));
+        history = new List<(string[,], string[,])>();
+        AddToHistory();
+
+    }
+
+    private void AddToHistory()
+    {
+        string[,] cS = (string[,])state.Clone();
+        string[,] cC = (string[,])colors.Clone();
+        history.Add((cS, cC));
+
+    }
+
+    public object Clone()
+    {
+        return this.MemberwiseClone();
     }
 
     public int CountPieces()
@@ -54,17 +69,15 @@ public class BoardState
 
     public void Undo()
     {
-        this.state = history.Last().Item1;
-        this.colors = history.Last().Item2;
+        //TODO: This is realllly slow, need a better way of doing it for simulating things!
+        state = (string[,])history[history.Count-1].Item1.Clone();
+        colors = (string[,])history[history.Count-1].Item2.Clone();
     }
 
 
     public void SetPiece(string name, string color, int x, int y, int prevX = -1, int prevY = -1, bool record = true)
     {
-        if (record)
-        {
-            history.Add(((string[,])state.Clone(), (string[,])colors.Clone()));
-        }
+
 
         state[x, y] = name;
         colors[x, y] = color;
@@ -73,6 +86,11 @@ public class BoardState
         {
             state[prevX, prevY] = null;
             colors[prevX, prevY] = null;
+        }
+
+        if (record)
+        {
+            AddToHistory();
         }
     }
 
@@ -151,48 +169,35 @@ public class BoardState
     {   // is color in check, basically
         (int x, int y) kingXY = FindKing(color);
 
-        // for each piece of oppo color, check if they can move to king position!
         bool check = false;
-        foreach (var p in IterateBoard())
-        {   
-            if (p.color == color)
-            {
-                continue;
-            }
+        Movements moves = new Movements();
 
-            Movements moves = new Movements();
-            foreach (var m in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
-            {
-                int x = m.x;
-                int y = m.y;
-                bool attack = m.attack;
-
-                if (!attack)
-                {
-                    continue;
-                } 
-
-                if (x == kingXY.x && y == kingXY.y)
-                {
-                    check = true;
-                }
-            }
-        }
         // now check if color can move
         int tn = 0;
         foreach (var p in IterateBoard())
         {   
             if (p.color != color)
             {
-                continue;
+                foreach (var m in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
+                {
+                    if (!m.attack)
+                    {
+                        continue;
+                    }
+                    if (m.x == kingXY.x && m.y == kingXY.y)
+                    {
+                        check = true;
+                    }
+                }
             }
-            Movements moves = new Movements();
-            tn += moves.GenerateMovements(p.piece, p.x, p.y, p.color, state, filter_suicide: true).Count;
+            else
+            {
+                tn += moves.GenerateMovements(p.piece, p.x, p.y, p.color, state, filter_self_check: true).Count;
+            }
         }
 
         if (check && tn == 0)
         {
-            Debug.Log("Checkmatey");
             return Conditions.Checkmate;
         }
 
@@ -214,22 +219,18 @@ public class BoardState
             Movements moves = new Movements();
             foreach (var m in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
             {
-                int x = m.x;
-                int y = m.y;
-                bool attack = m.attack;
-
-                if (!attack)
+          
+                if (!m.attack)
                 {
                     continue;
                 } 
 
-                if (x == kingXY.x && y == kingXY.y)
+                if (m.x == kingXY.x && m.y == kingXY.y)
                 {
                     return true;
                 }
             }
         }
-
         return false;
     }
 
