@@ -44,6 +44,7 @@ public class BoardState : ICloneable
 
     private void AddToHistory()
     {
+
         string[,] cS = (string[,])state.Clone();
         string[,] cC = (string[,])colors.Clone();
         history.Add((cS, cC));
@@ -69,7 +70,7 @@ public class BoardState : ICloneable
 
     public void Undo()
     {
-        //TODO: This is realllly slow, need a better way of doing it for simulating things!
+        //TODO: This is realllly slow, need a better way of doing it!
         state = (string[,])history[history.Count-1].Item1.Clone();
         colors = (string[,])history[history.Count-1].Item2.Clone();
     }

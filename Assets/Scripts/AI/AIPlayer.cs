@@ -38,7 +38,6 @@ public class AIPlayer
     public (int x, int y, int nx, int ny, bool attack) MakeRandomMove(BoardState state)
     {
         List<(int, int, int, int, bool )> validMoves = new List<(int, int, int, int, bool)>();
-        Movements moves = new Movements();
 
         // Pick random piece of color and make legal move
         // first find all pieces first
@@ -47,6 +46,7 @@ public class AIPlayer
             if (p.color == color)
             {
                 // get valid moves
+                Movements moves = new Movements();
                 foreach (var (x, y, attack) in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state, filter_self_check: true))
                 {
                     validMoves.Add((p.x, p.y, x, y, attack));
@@ -70,11 +70,12 @@ public class AIPlayer
 
         List<int> betterMoves = new List<int>();
         int idx = 0;
-        string opColor;
         foreach (var (x, y, nx, ny, attack) in moves)
         {
-            state.SetPiece(state.GetPosition(x, y), color, nx, ny, x, y, record: false);
-            opColor = (color == "white") ? "black" : "white";
+            string name = state.GetPosition(x, y);
+            state.SetPiece(name, color, nx, ny, x, y, record: false);
+            string opColor = (color == "white") ? "black" : "white";
+            state.CheckPlayState(opColor, state);
             switch (state.CheckPlayState(opColor, state))
             {
                 case BoardState.Conditions.Checkmate:
