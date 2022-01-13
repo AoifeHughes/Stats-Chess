@@ -168,7 +168,7 @@ public class BoardState : ICloneable
 
     public Conditions CheckPlayState(string color, BoardState state)
     {   // is color in check, basically
-        (int x, int y) kingXY = FindKing(color);
+        (int Kx, int Ky) = FindKing(color);
 
         bool check = false;
         Movements moves = new Movements();
@@ -179,13 +179,13 @@ public class BoardState : ICloneable
         {   
             if (p.color != color)
             {
-                foreach (var m in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
+                foreach (var (x, y, attack) in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
                 {
-                    if (!m.attack)
+                    if (!attack)
                     {
                         continue;
                     }
-                    if (m.x == kingXY.x && m.y == kingXY.y)
+                    if (x == Kx && y == Ky)
                     {
                         check = true;
                     }
@@ -201,8 +201,7 @@ public class BoardState : ICloneable
         {
             return Conditions.Checkmate;
         }
-
-        if (tn == 0)
+        else if (tn == 0)
         {
             return Conditions.Draw;
         }
@@ -211,7 +210,7 @@ public class BoardState : ICloneable
 
     public bool IsCheck(string color, BoardState state)
     {
-        (int x, int y) kingXY = FindKing(color);
+        (int x, int y) = FindKing(color);
 
         // for each piece of oppo color, check if they can move to king position!
 
@@ -226,7 +225,7 @@ public class BoardState : ICloneable
                     continue;
                 } 
 
-                if (m.x == kingXY.x && m.y == kingXY.y)
+                if (m.x == x && m.y == y)
                 {
                     return true;
                 }

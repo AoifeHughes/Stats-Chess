@@ -12,7 +12,7 @@ public class Game : MonoBehaviour
     public Text winnerText;
     private AIPlayer AIBlack, AIWhite;
     private bool IsBlackAI = true;
-    private bool IsWhiteAI = false; 
+    private bool IsWhiteAI = true; 
     private GameObject[,] positions = new GameObject[8, 8];
     private BoardState currentState;
     private bool gameOver = false;
@@ -209,7 +209,7 @@ public class Game : MonoBehaviour
 
     public void Draw()
     {
-        Debug.Log("GameOver");
+        Debug.Log("Draw");
         gameOver = true;
         //winnerText.enabled = true;
         //winnerText.text = "Draw";
