@@ -6,6 +6,8 @@ using System.Linq;
 public class BoardState : ICloneable
 {
 
+    //TODO Store pawn start positions... somehow.
+
     private string[,] state;
     private string[,] colors;
 
@@ -41,6 +43,30 @@ public class BoardState : ICloneable
         AddToHistory();
 
     }
+
+    public BoardState(bool testCheckWhite)
+    {
+        if (testCheckWhite)
+        {
+            this.currentPlayer = "white";
+            this.state = new string[8, 8];
+            this.colors = new string[8, 8];
+
+            // add 3 pawns for black
+            SetPiece("pawn", "black", 5, 6, record: false);
+            SetPiece("pawn", "black", 6, 6, record: false);
+            SetPiece("pawn", "black", 7, 6, record: false);
+            //Add black king behind them
+            SetPiece("king", "black", 7, 7, record: false);
+
+            //Add white king and queen
+            SetPiece("king", "white", 0, 0, record: false);
+            SetPiece("queen", "white", 1, 0, record: false);
+        }
+        history = new List<(string[,], string[,])>();
+        AddToHistory();
+    }
+
 
     private void AddToHistory()
     {
@@ -147,7 +173,8 @@ public class BoardState : ICloneable
         {
             for (int j = 0; j < state.GetLength(1); j++)
             {
-                yield return (state[i, j],colors[i, j], i, j);
+                if (state[i,j] != null)
+                    yield return (state[i, j],colors[i, j], i, j);
             }
         }
     }
@@ -168,34 +195,29 @@ public class BoardState : ICloneable
 
     public Conditions CheckPlayState(string color, BoardState state)
     {   // is color in check, basically
-        (int Kx, int Ky) = FindKing(color);
+        (int Kx, int Ky) = state.FindKing(color);
 
-        bool check = false;
+        bool check = IsCheck(color, state);
         Movements moves = new Movements();
 
         // now check if color can move
         int tn = 0;
-        foreach (var p in IterateBoard())
-        {   
+
+        // is there now any move that can be made to save king
+        foreach (var p in state.IterateBoard())
+        {
             if (p.color != color)
             {
-                foreach (var (x, y, attack) in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
-                {
-                    if (!attack)
-                    {
-                        continue;
-                    }
-                    if (x == Kx && y == Ky)
-                    {
-                        check = true;
-                    }
-                }
+                continue;
             }
-            else
+            // check number of moves that can be made
+            tn += moves.GenerateMovements(p.piece, p.x, p.y, p.color, state, filter_self_check: true).Count;
+            if (tn > 0)
             {
-                tn += moves.GenerateMovements(p.piece, p.x, p.y, p.color, state, filter_self_check: true).Count;
+                moves.GenerateMovements(p.piece, p.x, p.y, p.color, state, filter_self_check: true);
             }
         }
+
 
         if (check && tn == 0)
         {
@@ -210,13 +232,18 @@ public class BoardState : ICloneable
 
     public bool IsCheck(string color, BoardState state)
     {
-        (int x, int y) = FindKing(color);
+        (int x, int y) = state.FindKing(color);
+        Movements moves = new Movements();
 
         // for each piece of oppo color, check if they can move to king position!
 
-        foreach (var p in IterateBoard())
+        foreach (var p in state.IterateBoard())
         {
-            Movements moves = new Movements();
+            if (p.color == color)
+            {
+                continue;
+            }
+
             foreach (var m in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state))
             {
           
@@ -224,7 +251,7 @@ public class BoardState : ICloneable
                 {
                     continue;
                 } 
-
+                
                 if (m.x == x && m.y == y)
                 {
                     return true;

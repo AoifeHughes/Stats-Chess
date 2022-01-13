@@ -11,12 +11,13 @@ public class Game : MonoBehaviour
     public GameObject chesspiece;
     public Text winnerText;
     private AIPlayer AIBlack, AIWhite;
-    private bool IsBlackAI = true;
-    private bool IsWhiteAI = true; 
+    private bool IsBlackAI = false;
+    private bool IsWhiteAI = false; 
     private GameObject[,] positions = new GameObject[8, 8];
     private BoardState currentState;
     private bool gameOver = false;
-    
+
+    private bool testCheckStates = true;
 
 
 
@@ -33,9 +34,22 @@ public class Game : MonoBehaviour
             AIWhite = new AIPlayer("white");
         }
 
-        currentState = new BoardState();
+        if (testCheckStates)
+        {
+            currentState = new BoardState(testCheckStates);
+        }
+        else
+        {
+            currentState = new BoardState();
+        }
         BoardStateToPieces(currentState);
+
+        Debug.Log(currentState.CheckPlayState("black", currentState));
+        Debug.Log(currentState.IsCheck("black", currentState));
+        Debug.Log(currentState.IsCheck("white", currentState));
+
     }
+
 
     public void Update()
     {

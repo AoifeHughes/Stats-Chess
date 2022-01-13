@@ -5,8 +5,6 @@ using UnityEngine;
 public class Movements 
 {
 
-    [SerializeField] public GameObject controller;
-
     private List<(int x, int y, bool attack)> possMoves = new List<(int, int, bool)>();
     private int xBoard, yBoard, num_moves;
     private string color;
@@ -89,6 +87,7 @@ public class Movements
 
     private void PawnMove()
     {
+        //TODO: pawn movements are added twice?
         int dir = (color == "white") ? 1 : -1;
         int possY;
 

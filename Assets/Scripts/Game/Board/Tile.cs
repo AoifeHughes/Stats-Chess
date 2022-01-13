@@ -59,8 +59,6 @@ public class Tile : MonoBehaviour
                 Piece p = objRef.GetComponent<Piece>();
                 if (curPlayer == p.GetPlayer())
                 {
-
-
                     GridManager chessboard = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
                     Movements moves = new Movements();
                     List<(int x, int y, bool attack)> possMoves = moves.GenerateMovements(p.name, x, y, p.GetPlayer(), state, p.GetNumMoves(), true);
