@@ -148,7 +148,7 @@ public class BoardState
     }
 
     public Conditions CheckPlayState(string color, BoardState state)
-    {
+    {   // is color in check, basically
         (int x, int y) kingXY = FindKing(color);
 
         // for each piece of oppo color, check if they can move to king position!
@@ -187,11 +187,12 @@ public class BoardState
                 continue;
             }
             Movements moves = new Movements();
-            tn += moves.GenerateMovements(p.piece, p.x, p.y, p.color, state).Count;
+            tn += moves.GenerateMovements(p.piece, p.x, p.y, p.color, state, filter_suicide: true).Count;
         }
 
         if (check && tn == 0)
         {
+            Debug.Log("Checkmatey");
             return Conditions.Checkmate;
         }
 

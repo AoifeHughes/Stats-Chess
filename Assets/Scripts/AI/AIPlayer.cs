@@ -47,12 +47,8 @@ public class AIPlayer
             {
                 // get valid moves
                 Movements moves = new Movements();
-                foreach (var m in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state, filter_suicide: true))
+                foreach (var (x, y, attack) in moves.GenerateMovements(p.piece, p.x, p.y, p.color, state, filter_suicide: true))
                 {
-                    int x = m.x;
-                    int y = m.y;
-                    bool attack = m.attack;
-
                     validMoves.Add((p.x, p.y, x, y, attack));
                 }
             }
@@ -63,7 +59,7 @@ public class AIPlayer
             int idx = CanAnyMoveCheck(validMoves, state);
             return validMoves[idx];
         }
-        
+       
         return (-1, -1, -1, -1, false);
 
     }
@@ -73,36 +69,36 @@ public class AIPlayer
         Random rnd = new Random();
 
         List<int> betterMoves = new List<int>();
-        int idx =0;
-        foreach (var m in moves)
+        int idx = 0;
+        foreach (var (x, y, nx, ny, attack) in moves)
         {
-            int x = m.x;
-            int y = m.y;
-            string name = state.GetPosition(x,y);
-            state.SetPiece(name, color, x, y, m.nx, m.ny);
-
-            switch (state.CheckPlayState(color, state))
-            {
-                case BoardState.Conditions.Checkmate:
-                    return idx;
-                case BoardState.Conditions.Check:
-                    betterMoves.Add(idx);
-                    break;
-                default:
-                    if (m.attack)
-                        betterMoves.Add(idx);
-                    break;
-            }
-            
+            string name = state.GetPosition(x, y);
+            state.SetPiece(name, color, nx, ny, x, y);
+            string opColor = (color == "white") ? "black" : "white";
+            state.IsCheck(opColor, state);
+            //state.CheckPlayState(opColor, state);
+            //switch (state.CheckPlayState(opColor, state))
+            //{
+            //    case BoardState.Conditions.Checkmate:
+            //        betterMoves.Add(idx);
+            //        break;
+            //    case BoardState.Conditions.Check:
+            //        betterMoves.Add(idx);
+            //        break;
+            //    default:
+            //        if (attack)
+            //            betterMoves.Add(idx);
+            //        break;
+            //}
             state.Undo();
             idx++;
         }
 
-       if (betterMoves.Count > 0)
-        {
-            idx = rnd.Next(betterMoves.Count);
-            return betterMoves[idx];
-        }
+        //if (betterMoves.Count > 0)
+        // {
+        //     idx = rnd.Next(betterMoves.Count);
+        //     return betterMoves[idx];
+        // }
 
         return rnd.Next(moves.Count);
     }

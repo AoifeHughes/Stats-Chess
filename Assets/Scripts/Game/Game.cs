@@ -12,7 +12,7 @@ public class Game : MonoBehaviour
     public Text winnerText;
     private AIPlayer AIBlack, AIWhite;
     private bool IsBlackAI = true;
-    private bool IsWhiteAI = false; 
+    private bool IsWhiteAI = true; 
     private GameObject[,] positions = new GameObject[8, 8];
     private BoardState currentState;
     private bool gameOver = false;
@@ -63,15 +63,16 @@ public class Game : MonoBehaviour
                     if (!AIColor.IsThinking)
                     {
                         AIColor.IsThinking = true;
-                        (int x, int y, int nx, int ny, bool attack) move = AIColor.MakeMove(currentState);
+                        (int x, int y, int nx, int ny, bool attack) = AIColor.MakeMove(currentState);
 
-                        if (move.x >= 0)
+                        if (x >= 0)
                         {
-                            HandleMovement(GetCPRef(move.x, move.y), move.nx, move.ny, move.attack, timer);
+                            HandleMovement(GetCPRef(x, y), nx, ny, attack, timer);
                         }
                         else
                         {
-                            NextTurn();
+                        Draw();
+                            //NextTurn();
                         }
                     }
                 }
@@ -143,7 +144,7 @@ public class Game : MonoBehaviour
 
         // Do visuals
 
-        positions[prevX, prevY] = null;
+        //positions[prevX, prevY] = null;
         piece.SetXYBoard(x, y);
         piece.IncNumMoves();
         positions[x, y] = obj;
@@ -173,17 +174,19 @@ public class Game : MonoBehaviour
     public void NextTurn()
     {
 
-
+        currentState.SwapPlayer();
         switch (currentState.CheckPlayState(GetCurrentPlayer(), currentState))
         {
             case BoardState.Conditions.Checkmate:
             {
+                Debug.Log("Winner");
                 string winner = (GetCurrentPlayer() == "white") ? "black" : "white";
                 Winner(winner);
                 break;
             }
             case BoardState.Conditions.Draw:
             {
+                Debug.Log("Draw");
                 Draw();
                 break;
             }
@@ -196,7 +199,7 @@ public class Game : MonoBehaviour
             Draw();
         }
 
-        currentState.SwapPlayer();
+        
         // End game if needs be!
 
     }
@@ -206,9 +209,9 @@ public class Game : MonoBehaviour
     {
         Debug.Log("GameOver");
         gameOver = true;
-        winnerText.enabled = true;
-        winnerText.text = playerWinner + " Wins!";
-        GameObject.FindGameObjectWithTag("RestartText").GetComponent<Text>().enabled = true;
+        //winnerText.enabled = true;
+        //winnerText.text = playerWinner + " Wins!";
+        //GameObject.FindGameObjectWithTag("RestartText").GetComponent<Text>().enabled = true;
 
     }
 
@@ -216,8 +219,8 @@ public class Game : MonoBehaviour
     {
         Debug.Log("GameOver");
         gameOver = true;
-        winnerText.enabled = true;
-        winnerText.text = "Draw";
+        //winnerText.enabled = true;
+        //winnerText.text = "Draw";
 
     }
 
