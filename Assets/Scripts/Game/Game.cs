@@ -155,9 +155,8 @@ public class Game : MonoBehaviour
     }
 
 
-    private IEnumerator DelayMovements(GameObject obj, int x, int y, bool attack, int wait = 0)
+    public void HandleMovement(GameObject obj, int x, int y, bool attack, int wait = 0)
     {
-        yield return new WaitForSeconds(wait);
         if (attack)
         {
             Destroy(positions[x, y]);
@@ -189,10 +188,6 @@ public class Game : MonoBehaviour
     }
 
 
-    public void HandleMovement(GameObject obj, int x, int y, bool attack, int wait = 0)
-    {
-        StartCoroutine(DelayMovements(obj, x, y, attack, wait));
-    }
 
 
     public string GetCurrentPlayer() { return currentState.GetCurrentPlayer(); }

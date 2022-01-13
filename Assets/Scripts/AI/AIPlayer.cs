@@ -72,25 +72,25 @@ public class AIPlayer
         int idx = 0;
         foreach (var (x, y, nx, ny, attack) in moves)
         {
-            string name = state.GetPosition(x, y);
-            state.SetPiece(name, color, nx, ny, x, y, record: false);
-            string opColor = (color == "white") ? "black" : "white";
-            state.CheckPlayState(opColor, state);
-            switch (state.CheckPlayState(opColor, state))
-            {
-                case BoardState.Conditions.Checkmate:
-                    state.Undo();
-                    return idx;
-                case BoardState.Conditions.Check:
-                    betterMoves.Add(idx);
-                    break;
-                default:
-                    if (attack)
-                        betterMoves.Add(idx);
-                    break;
-            }
-            state.Undo();
-            idx++;
+            //string name = state.GetPosition(x, y);
+            //state.SetPiece(name, color, nx, ny, x, y, record: false);
+            //string opColor = (color == "white") ? "black" : "white";
+            //state.CheckPlayState(opColor, state);
+            //switch (state.CheckPlayState(opColor, state))
+            //{
+            //    case BoardState.Conditions.Checkmate:
+            //        state.Undo();
+            //        return idx;
+            //    case BoardState.Conditions.Check:
+            //        betterMoves.Add(idx);
+            //        break;
+            //    default:
+            //        if (attack)
+            //            betterMoves.Add(idx);
+            //        break;
+            //}
+            //state.Undo();
+            //idx++;
         }
 
         if (betterMoves.Count > 0)
